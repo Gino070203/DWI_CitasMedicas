@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación de Código - Centro Médico</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        h2 { color: #333; }
+        p { color: #666; font-size: 14px; }
+        .form-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; font-size: 18px; text-align: center; letter-spacing: 2px; }
+        button { width: 100%; padding: 10px; background: #28a745; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background: #218838; }
+        .error { color: red; font-size: 13px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Verifica tu Correo</h2>
+    <p>Hemos enviado un código de 6 dígitos a <br><strong th:text="${correo}">correo@example.com</strong></p>
+
+    <!-- Mensaje de error si el código es incorrecto -->
+    <div th:if="${error}" class="error" th:text="${error}"></div>
+
+    <form th:action="@{/verificar-codigo}" method="POST">
+        <!-- Input oculto para llevar el correo al procesar -->
+        <input type="hidden" name="correo" th:value="${correo}" />
+
+        <div class="form-group">
+            <label>Ingresa el código:</label>
+            <input type="text" name="codigo" maxlength="6" placeholder="123456" required autocomplete="off" />
+        </div>
+        
+        <button type="submit">Verificar Cuenta</button>
+    </form>
+</div>
+
+</body>
+</html>

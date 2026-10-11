@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - Centro Médico</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; color: #666; font-size: 14px; }
+        input { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        .btn-login { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; margin-top: 10px; }
+        .btn-login:hover { background: #0056b3; }
+        .google-btn { display: block; margin-top: 15px; text-decoration: none; background: #db4437; color: white; padding: 10px; border-radius: 4px; font-size: 14px; }
+        .google-btn:hover { background: #c23321; }
+        .register-link { margin-top: 20px; font-size: 14px; color: #666; }
+        .register-link a { color: #007bff; text-decoration: none; font-weight: bold; }
+        .register-link a:hover { text-decoration: underline; }
+        .alert-success { color: green; font-size: 13px; margin-bottom: 15px; }
+        .alert-error { color: red; font-size: 13px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Iniciar Sesión</h2>
+
+    <!-- Mensaje si acaba de verificar su cuenta con éxito -->
+    <div th:if="${param.verificado}" class="alert-success">
+        ¡Cuenta verificada con éxito! Ya puedes iniciar sesión.
+    </div>
+
+    <!-- Mensaje de error de credenciales -->
+    <div th:if="${param.error}" class="alert-error">
+        Correo o contraseña incorrectos.
+    </div>
+
+    <!-- Formulario de Login Tradicional -->
+    <form th:action="@{/login}" method="POST">
+        <div class="form-group">
+            <label>Correo Electrónico:</label>
+            <input type="email" name="username" required />
+        </div>
+        
+        <div class="form-group">
+            <label>Contraseña:</label>
+            <input type="password" name="password" required />
+        </div>
+        
+        <button type="submit" class="btn-login">Ingresar</button>
+    </form>
+
+    <!-- Botón de Inicio de Sesión con Google -->
+    <a th:href="@{/oauth2/authorization/google}" class="google-btn">
+        Iniciar sesión con Google
+    </a>
+
+    <!-- Enlace hacia el Registro -->
+    <div class="register-link">
+        ¿No tienes una cuenta? <a th:href="@{/registro}">Regístrate aquí</a>
+    </div>
+</div>
+
+</body>
+</html>
