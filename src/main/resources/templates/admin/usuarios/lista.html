@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de Usuarios | Citas Médicas</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f3f6fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #123b70, #1767b2);
+        }
+
+        .titulo {
+            color: #163e70;
+            font-weight: bold;
+        }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+        }
+
+        .table thead th {
+            background-color: #163e70;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge-activo {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-inactivo {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-rol {
+            background-color: #e0ecff;
+            color: #164c91;
+        }
+
+        .acciones {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <nav class="navbar navbar-dark shadow-sm">
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold"
+               th:href="@{/admin/dashboard}">
+                <i class="bi bi-hospital me-2"></i>
+                Centro Médico Buenos Aires de Villa
+            </a>
+
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right"></i>
+                    Cerrar sesión
+                </button>
+            </form>
+
+        </div>
+    </nav>
+
+    <main class="container py-4">
+
+        <!-- ENCABEZADO -->
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-3 mb-4">
+
+            <div>
+                <h2 class="titulo mb-1">
+                    <i class="bi bi-people-fill me-2"></i>
+                    Gestión de Usuarios
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Administra las cuentas y los roles del sistema.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/dashboard}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+                </a>
+
+                <a th:href="@{/admin/usuarios/nuevo}"
+                   class="btn btn-primary">
+                    <i class="bi bi-person-plus-fill"></i>
+                    Nuevo usuario
+                </a>
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div th:if="${mensaje}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${mensaje}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+
+        <div th:if="${error}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+        </div>
+
+        <!-- TABLA -->
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <div class="d-flex justify-content-between
+                            align-items-center mb-3">
+
+                    <h5 class="fw-bold mb-0">
+                        <i class="bi bi-list-ul me-2"></i>
+                        Usuarios registrados
+                    </h5>
+
+                    <span class="badge text-bg-primary"
+                          th:text="${usuarios != null ? #lists.size(usuarios) : 0}">
+                        0
+                    </span>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover table-bordered align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nombre completo</th>
+                                <th>DNI</th>
+                                <th>Correo electrónico</th>
+                                <th>Teléfono</th>
+                                <th>Rol</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="u : ${usuarios}">
+
+                                <td th:text="${u.idUsuario}"></td>
+
+                                <td th:text="${u.nombre + ' ' + u.apellido}">
+                                </td>
+
+                                <td th:text="${u.dni}"></td>
+
+                                <td th:text="${u.correo}"></td>
+
+                                <td th:text="${u.telefono != null ? u.telefono : '-'}">
+                                </td>
+
+                                <td>
+                                    <span class="badge badge-rol"
+                                          th:text="${u.rol != null ? u.rol.nombre : 'SIN ROL'}">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${u.estado == true} ? 'badge-activo' : 'badge-inactivo'"
+                                          th:text="${u.estado == true} ? 'Activo' : 'Inactivo'">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="acciones">
+
+                                        <!-- EDITAR -->
+                                        <a class="btn btn-warning btn-sm"
+                                           th:href="@{/admin/usuarios/editar/{id}(id=${u.idUsuario})}">
+
+                                            <i class="bi bi-pencil-square"></i>
+                                            Editar
+                                        </a>
+
+                                        <!-- CAMBIAR ESTADO -->
+                                        <form method="post"
+                                              th:action="@{/admin/usuarios/estado/{id}(id=${u.idUsuario})}"
+                                              onsubmit="return confirm('¿Deseas cambiar el estado de este usuario?');">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm"
+                                                    th:classappend="${u.estado == true} ? 'btn-danger' : 'btn-success'">
+
+                                                <i class="bi bi-arrow-repeat"></i>
+
+                                                <span th:text="${u.estado == true} ? 'Desactivar' : 'Activar'">
+                                                </span>
+
+                                            </button>
+                                        </form>
+
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- TABLA VACÍA -->
+                            <tr th:if="${usuarios == null or #lists.isEmpty(usuarios)}">
+                                <td colspan="8"
+                                    class="text-center text-muted py-4">
+
+                                    <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                                    No hay usuarios registrados.
+
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center text-muted py-4">
+        <small>
+            © 2026 Centro Médico Buenos Aires de Villa
+        </small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

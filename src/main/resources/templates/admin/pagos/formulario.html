@@ -1,0 +1,607 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar Pago | Centro Médico</title>
+
+    <!-- BOOTSTRAP -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- ICONOS -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background: #f3f6fb;
+            font-family: Arial, sans-serif;
+            color: #24364b;
+        }
+
+        .navbar {
+            background: linear-gradient(
+                90deg,
+                #123b70,
+                #1767b2
+            );
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(
+                90deg,
+                #163e70,
+                #2477c4
+            );
+            color: white;
+            padding: 30px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 9px;
+            padding: 12px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #2477c4;
+            box-shadow: 0 0 0 0.2rem
+                rgba(36, 119, 196, 0.15);
+        }
+
+        .seccion {
+            color: #163e70;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .warning-box {
+            background: #fff7ed;
+            border-left: 4px solid #f59e0b;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .btn-success {
+            background: #15803d;
+            border-color: #15803d;
+        }
+
+        .btn-success:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+
+        .resumen {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .resumen h6 {
+            color: #64748b;
+        }
+
+        .resumen strong {
+            color: #163e70;
+        }
+
+        footer {
+            color: #64748b;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================================== -->
+    <!-- BARRA SUPERIOR -->
+    <!-- ================================== -->
+    <nav class="navbar navbar-dark shadow-sm">
+
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold"
+               th:href="@{/admin/dashboard}">
+
+                <i class="bi bi-hospital me-2"></i>
+
+                Centro Médico Buenos Aires de Villa
+
+            </a>
+
+            <a th:href="@{/admin/pagos}"
+               class="btn btn-outline-light btn-sm">
+
+                <i class="bi bi-arrow-left me-1"></i>
+
+                Volver a pagos
+
+            </a>
+
+        </div>
+
+    </nav>
+
+    <!-- ================================== -->
+    <!-- CONTENIDO PRINCIPAL -->
+    <!-- ================================== -->
+    <main class="container py-5">
+
+        <div class="row justify-content-center">
+
+            <div class="col-lg-8">
+
+                <div class="card form-card shadow-sm">
+
+                    <!-- ENCABEZADO -->
+                    <div class="form-header">
+
+                        <h3 class="mb-2">
+
+                            <i class="bi bi-cash-coin me-2"></i>
+
+                            Registrar pago de cita médica
+
+                        </h3>
+
+                        <p class="mb-0">
+
+                            Registra los pagos particulares
+                            de los pacientes que no cuentan
+                            con SIS.
+
+                        </p>
+
+                    </div>
+
+                    <!-- CUERPO -->
+                    <div class="card-body p-4 p-md-5">
+
+                        <!-- ERROR -->
+                        <div th:if="${error}"
+                             class="alert alert-danger"
+                             role="alert">
+
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+                            <span th:text="${error}"></span>
+
+                        </div>
+
+                        <!-- INFORMACIÓN DEL SIS -->
+                        <div class="info-box mb-4">
+
+                            <i class="bi bi-shield-check text-primary me-2"></i>
+
+                            <strong>Atención con SIS:</strong>
+
+                            Los pacientes con SIS vigente y
+                            atención cubierta no requieren
+                            realizar un pago particular.
+
+                            Sus citas deben registrarse
+                            directamente como confirmadas.
+
+                        </div>
+
+                        <!-- SIN CITAS PENDIENTES -->
+                        <div th:if="${citas == null or #lists.isEmpty(citas)}"
+                             class="text-center py-4">
+
+                            <i class="bi bi-check-circle-fill
+                                      text-success display-4"></i>
+
+                            <h5 class="mt-3">
+                                No hay citas pendientes de pago
+                            </h5>
+
+                            <p class="text-muted">
+
+                                Actualmente no existen citas
+                                particulares que necesiten
+                                registrar un pago.
+
+                            </p>
+
+                            <a th:href="@{/admin/pagos}"
+                               class="btn btn-outline-secondary">
+
+                                <i class="bi bi-arrow-left me-1"></i>
+
+                                Volver al listado
+
+                            </a>
+
+                        </div>
+
+                        <!-- FORMULARIO -->
+                        <form th:if="${citas != null and !#lists.isEmpty(citas)}"
+                              method="post"
+                              th:action="@{/admin/pagos/guardar}"
+                              id="formularioPago">
+
+                            <!-- SELECCIÓN DE CITA -->
+                            <h5 class="seccion mb-3">
+
+                                <i class="bi bi-calendar-check me-2"></i>
+
+                                Datos de la cita
+
+                            </h5>
+
+                            <div class="mb-4">
+
+                                <label for="idCita"
+                                       class="form-label">
+
+                                    Seleccionar cita pendiente
+
+                                </label>
+
+                                <select name="idCita"
+                                        id="idCita"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        Seleccione una cita
+                                    </option>
+
+                                    <option th:each="c : ${citas}"
+                                            th:value="${c.idCita}"
+                                            th:text="${'Cita N.º ' + c.idCita
+                                                + ' - ' + c.paciente.usuario.nombre
+                                                + ' ' + c.paciente.usuario.apellido
+                                                + ' - ' + c.fecha}">
+
+                                    </option>
+
+                                </select>
+
+                                <small class="text-muted">
+
+                                    Solo aparecen citas pendientes
+                                    de pago de pacientes sin SIS.
+
+                                </small>
+
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- DATOS DEL PAGO -->
+                            <h5 class="seccion mb-3">
+
+                                <i class="bi bi-wallet2 me-2"></i>
+
+                                Información del pago
+
+                            </h5>
+
+                            <!-- MONTO -->
+                            <div class="mb-4">
+
+                                <label for="monto"
+                                       class="form-label">
+
+                                    Monto a pagar (S/)
+
+                                </label>
+
+                                <div class="input-group">
+
+                                    <span class="input-group-text">
+                                        S/
+                                    </span>
+
+                                    <input type="number"
+                                           name="monto"
+                                           id="monto"
+                                           class="form-control"
+                                           min="0.01"
+                                           step="0.01"
+                                           placeholder="Ejemplo: 30.00"
+                                           required>
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    Ingresa el importe correspondiente
+                                    a la atención médica.
+
+                                </small>
+
+                            </div>
+
+                            <!-- MÉTODO DE PAGO -->
+                            <div class="mb-4">
+
+                                <label for="metodoPago"
+                                       class="form-label">
+
+                                    Método de pago
+
+                                </label>
+
+                                <select name="metodoPago"
+                                        id="metodoPago"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        Seleccione un método
+                                    </option>
+
+                                    <option value="EFECTIVO">
+                                        Efectivo
+                                    </option>
+
+                                    <option value="TARJETA">
+                                        Tarjeta
+                                    </option>
+
+                                    <option value="TRANSFERENCIA">
+                                        Transferencia bancaria
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- RESUMEN -->
+                            <div class="resumen mb-4">
+
+                                <h6 class="fw-bold mb-3">
+
+                                    <i class="bi bi-receipt me-2"></i>
+
+                                    Resumen del pago
+
+                                </h6>
+
+                                <div class="d-flex justify-content-between mb-2">
+
+                                    <span>Cita seleccionada:</span>
+
+                                    <strong id="resumenCita">
+                                        Ninguna
+                                    </strong>
+
+                                </div>
+
+                                <div class="d-flex justify-content-between mb-2">
+
+                                    <span>Método de pago:</span>
+
+                                    <strong id="resumenMetodo">
+                                        No seleccionado
+                                    </strong>
+
+                                </div>
+
+                                <hr>
+
+                                <div class="d-flex justify-content-between">
+
+                                    <strong>Total:</strong>
+
+                                    <strong id="resumenMonto"
+                                            class="fs-4 text-success">
+
+                                        S/ 0.00
+
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                            <!-- ADVERTENCIA -->
+                            <div class="warning-box mb-4">
+
+                                <i class="bi bi-exclamation-circle-fill
+                                          text-warning me-2"></i>
+
+                                <strong>Importante:</strong>
+
+                                Al registrar el pago,
+                                la cita médica cambiará
+                                automáticamente de
+
+                                <strong>PENDIENTE_PAGO</strong>
+
+                                a
+
+                                <strong>CONFIRMADA</strong>.
+
+                            </div>
+
+                            <!-- BOTONES -->
+                            <div class="d-flex flex-wrap gap-2">
+
+                                <button type="submit"
+                                        class="btn btn-success px-4">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+
+                                    Registrar pago
+
+                                </button>
+
+                                <a th:href="@{/admin/pagos}"
+                                   class="btn btn-outline-secondary px-4">
+
+                                    <i class="bi bi-x-circle me-1"></i>
+
+                                    Cancelar
+
+                                </a>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="text-center py-4">
+
+        <small>
+
+            © 2026 Centro Médico Buenos Aires de Villa |
+            Sistema de Gestión de Citas Médicas
+
+        </small>
+
+    </footer>
+
+    <!-- ================================== -->
+    <!-- JAVASCRIPT PARA RESUMEN DEL PAGO -->
+    <!-- ================================== -->
+    <script>
+
+        const citaSelect =
+            document.getElementById("idCita");
+
+        const montoInput =
+            document.getElementById("monto");
+
+        const metodoSelect =
+            document.getElementById("metodoPago");
+
+        const resumenCita =
+            document.getElementById("resumenCita");
+
+        const resumenMetodo =
+            document.getElementById("resumenMetodo");
+
+        const resumenMonto =
+            document.getElementById("resumenMonto");
+
+        const formulario =
+            document.getElementById("formularioPago");
+
+        if (formulario) {
+
+            function actualizarResumen() {
+
+                const opcionCita =
+                    citaSelect.selectedOptions[0];
+
+                resumenCita.textContent =
+                    citaSelect.value
+                        ? opcionCita.textContent.trim()
+                        : "Ninguna";
+
+                const opcionMetodo =
+                    metodoSelect.selectedOptions[0];
+
+                resumenMetodo.textContent =
+                    metodoSelect.value
+                        ? opcionMetodo.textContent.trim()
+                        : "No seleccionado";
+
+                const monto =
+                    Number(montoInput.value || 0);
+
+                resumenMonto.textContent =
+                    "S/ " + monto.toFixed(2);
+
+            }
+
+            citaSelect.addEventListener(
+                "change",
+                actualizarResumen
+            );
+
+            montoInput.addEventListener(
+                "input",
+                actualizarResumen
+            );
+
+            metodoSelect.addEventListener(
+                "change",
+                actualizarResumen
+            );
+
+            formulario.addEventListener(
+                "submit",
+                function(event) {
+
+                    const monto =
+                        Number(montoInput.value);
+
+                    if (!Number.isFinite(monto) || monto <= 0) {
+
+                        event.preventDefault();
+
+                        alert(
+                            "El monto debe ser mayor que cero."
+                        );
+
+                        montoInput.focus();
+
+                        return;
+                    }
+
+                    const confirmar = confirm(
+                        "¿Confirmas que recibiste el pago " +
+                        "y deseas confirmar esta cita médica?"
+                    );
+
+                    if (!confirmar) {
+                        event.preventDefault();
+                    }
+
+                }
+            );
+
+            actualizarResumen();
+
+        }
+
+    </script>
+
+    <!-- BOOTSTRAP JS -->
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,306 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de Horarios | Centro Médico</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f3f6fb;
+            font-family: Arial, sans-serif;
+            color: #24364b;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #123b70, #1767b2);
+        }
+
+        .titulo {
+            color: #163e70;
+            font-weight: 700;
+        }
+
+        .card {
+            border: none;
+            border-radius: 15px;
+        }
+
+        .table thead th {
+            background: #163e70;
+            color: white;
+            white-space: nowrap;
+            padding: 14px;
+        }
+
+        .table td {
+            vertical-align: middle;
+            padding: 12px;
+        }
+
+        .badge-activo {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-inactivo {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .btn-primary {
+            background: #1767b2;
+            border-color: #1767b2;
+        }
+
+        .btn-primary:hover {
+            background: #123b70;
+            border-color: #123b70;
+        }
+
+        .acciones {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <nav class="navbar navbar-dark shadow-sm">
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold"
+               th:href="@{/admin/dashboard}">
+                <i class="bi bi-hospital me-2"></i>
+                Centro Médico Buenos Aires de Villa
+            </a>
+
+            <form method="post" th:action="@{/logout}">
+                <button type="submit" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-box-arrow-right me-1"></i>
+                    Cerrar sesión
+                </button>
+            </form>
+
+        </div>
+    </nav>
+
+    <main class="container py-4">
+
+        <!-- ENCABEZADO -->
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-3 mb-4">
+
+            <div>
+                <h2 class="titulo mb-1">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Gestión de Horarios
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Administra los días y horarios de atención de los médicos.
+                </p>
+            </div>
+
+            <div class="d-flex gap-2">
+                <a th:href="@{/admin/dashboard}"
+                   class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+                </a>
+
+                <a th:href="@{/admin/horarios/nuevo}"
+                   class="btn btn-primary">
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Nuevo horario
+                </a>
+            </div>
+        </div>
+
+        <!-- MENSAJES -->
+        <div th:if="${mensaje}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+            <span th:text="${mensaje}"></span>
+
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+
+        <div th:if="${error}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <span th:text="${error}"></span>
+
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- RESUMEN -->
+        <div class="row g-3 mb-4">
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="text-muted">Horarios registrados</h6>
+
+                        <h2 class="titulo mb-0"
+                            th:text="${horarios != null ? #lists.size(horarios) : 0}">
+                            0
+                        </h2>
+
+                        <small class="text-muted">
+                            Total de horarios del centro médico
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h6 class="text-muted">Módulo de administración</h6>
+
+                        <h5 class="titulo mb-1">
+                            <i class="bi bi-calendar-week me-2"></i>
+                            Horarios médicos
+                        </h5>
+
+                        <small class="text-muted">
+                            Consulta y administra los turnos de atención.
+                        </small>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TABLA -->
+        <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+                <h5 class="fw-bold mb-3">
+                    <i class="bi bi-list-ul me-2"></i>
+                    Listado de horarios
+                </h5>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Médico</th>
+                                <th>Día</th>
+                                <th>Hora de inicio</th>
+                                <th>Hora de fin</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="h : ${horarios}">
+
+                                <td th:text="${h.idHorario}"></td>
+
+                                <td th:text="${h.medico.usuario.nombre + ' ' + h.medico.usuario.apellido}">
+                                </td>
+
+                                <!-- DÍAS TRADUCIDOS AL ESPAÑOL -->
+                                <td th:switch="${h.diaSemana}">
+                                    <span th:case="'MONDAY'">Lunes</span>
+                                    <span th:case="'TUESDAY'">Martes</span>
+                                    <span th:case="'WEDNESDAY'">Miércoles</span>
+                                    <span th:case="'THURSDAY'">Jueves</span>
+                                    <span th:case="'FRIDAY'">Viernes</span>
+                                    <span th:case="'SATURDAY'">Sábado</span>
+                                    <span th:case="'SUNDAY'">Domingo</span>
+                                    <span th:case="*" th:text="${h.diaSemana}">Día</span>
+                                </td>
+
+                                <td th:text="${h.horaInicio}"></td>
+
+                                <td th:text="${h.horaFin}"></td>
+
+                                <td>
+                                    <span class="badge"
+                                          th:classappend="${h.estado == true} ? 'badge-activo' : 'badge-inactivo'"
+                                          th:text="${h.estado == true} ? 'Activo' : 'Inactivo'">
+                                    </span>
+                                </td>
+
+                                <td>
+                                    <div class="acciones">
+
+                                        <form method="post"
+                                              th:action="@{/admin/horarios/estado/{id}(id=${h.idHorario})}"
+                                              onsubmit="return confirm('¿Deseas cambiar el estado de este horario?');">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm"
+                                                    th:classappend="${h.estado == true} ? 'btn-outline-danger' : 'btn-outline-success'">
+
+                                                <i class="bi bi-arrow-repeat me-1"></i>
+
+                                                <span th:text="${h.estado == true} ? 'Desactivar' : 'Activar'">
+                                                </span>
+                                            </button>
+
+                                        </form>
+
+                                    </div>
+                                </td>
+
+                            </tr>
+
+                            <!-- TABLA VACÍA -->
+                            <tr th:if="${horarios == null or #lists.isEmpty(horarios)}">
+                                <td colspan="7"
+                                    class="text-center text-muted py-4">
+
+                                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
+                                    No hay horarios registrados.
+
+                                </td>
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="text-center text-muted py-4">
+        <small>
+            © 2026 Centro Médico Buenos Aires de Villa |
+            Sistema de Gestión de Citas Médicas
+        </small>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>
