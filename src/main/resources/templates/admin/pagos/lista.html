@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Gestión de Pagos | Citas Médicas</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+        rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f3f6fb;
+            font-family: Arial, sans-serif;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #123b70, #1767b2);
+        }
+
+        .titulo {
+            color: #163e70;
+            font-weight: bold;
+        }
+
+        .card {
+            border: none;
+            border-radius: 14px;
+        }
+
+        .resumen-pagos {
+            background: linear-gradient(110deg, #123b70, #1767b2);
+            color: white;
+        }
+
+        .resumen-pagos h2 {
+            font-weight: bold;
+            font-size: 34px;
+        }
+
+        .icono-resumen {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            background-color: rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 28px;
+        }
+
+        .table thead th {
+            background-color: #163e70;
+            color: white;
+            white-space: nowrap;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .badge-pagado {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-pendiente {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge-cancelado {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .monto {
+            font-weight: bold;
+            color: #15803d;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <nav class="navbar navbar-dark shadow-sm">
+
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold"
+               th:href="@{/admin/dashboard}">
+
+                <i class="bi bi-hospital me-2"></i>
+
+                Centro Médico Buenos Aires de Villa
+
+            </a>
+
+            <form th:action="@{/logout}" method="post">
+
+                <button type="submit"
+                        class="btn btn-outline-light btn-sm">
+
+                    <i class="bi bi-box-arrow-right me-1"></i>
+                    Cerrar sesión
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </nav>
+
+
+    <!-- CONTENIDO -->
+    <main class="container py-4">
+
+        <!-- ENCABEZADO -->
+        <div class="d-flex flex-wrap justify-content-between
+                    align-items-center gap-3 mb-4">
+
+            <div>
+
+                <h2 class="titulo mb-1">
+
+                    <i class="bi bi-cash-stack me-2"></i>
+
+                    Gestión de Pagos
+
+                </h2>
+
+                <p class="text-muted mb-0">
+                    Consulta y registra los pagos de las citas médicas.
+                </p>
+
+            </div>
+
+            <div class="d-flex gap-2">
+
+                <a th:href="@{/admin/dashboard}"
+                   class="btn btn-outline-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+                    Volver
+
+                </a>
+
+                <a th:href="@{/admin/pagos/nuevo}"
+                   class="btn btn-primary">
+
+                    <i class="bi bi-plus-circle me-1"></i>
+                    Registrar pago
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- MENSAJES -->
+        <div th:if="${mensaje}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-check-circle-fill me-2"></i>
+
+            <span th:text="${mensaje}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+        <div th:if="${error}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+
+            <span th:text="${error}"></span>
+
+            <button type="button"
+                    class="btn-close"
+                    data-bs-dismiss="alert">
+            </button>
+
+        </div>
+
+
+        <!-- RESUMEN -->
+        <div class="row g-3 mb-4">
+
+            <!-- TOTAL RECAUDADO -->
+            <div class="col-md-6">
+
+                <div class="card resumen-pagos shadow-sm h-100">
+
+                    <div class="card-body p-4 d-flex
+                                justify-content-between
+                                align-items-center">
+
+                        <div>
+
+                            <h6>Total recaudado</h6>
+
+                            <h2>
+                                S/
+                                <span th:text="${totalRecaudado != null ? totalRecaudado : '0.00'}">
+                                    0.00
+                                </span>
+                            </h2>
+
+                            <small>
+                                Pagos confirmados
+                            </small>
+
+                        </div>
+
+                        <div class="icono-resumen">
+
+                            <i class="bi bi-cash-coin"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- CANTIDAD DE PAGOS -->
+            <div class="col-md-6">
+
+                <div class="card shadow-sm h-100">
+
+                    <div class="card-body p-4 d-flex
+                                justify-content-between
+                                align-items-center">
+
+                        <div>
+
+                            <h6 class="text-muted">
+                                Pagos registrados
+                            </h6>
+
+                            <h2 class="titulo"
+                                th:text="${pagos != null ? #lists.size(pagos) : 0}">
+                                0
+                            </h2>
+
+                            <small class="text-muted">
+                                Registros de pagos
+                            </small>
+
+                        </div>
+
+                        <div class="icono-resumen"
+                             style="background:#dbeafe;color:#2563eb;">
+
+                            <i class="bi bi-receipt"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- TABLA -->
+        <div class="card shadow-sm">
+
+            <div class="card-body p-4">
+
+                <h5 class="fw-bold mb-3">
+
+                    <i class="bi bi-list-ul me-2"></i>
+
+                    Historial de pagos
+
+                </h5>
+
+                <div class="table-responsive">
+
+                    <table class="table table-bordered table-hover align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>ID Pago</th>
+                                <th>ID Cita</th>
+                                <th>Monto</th>
+                                <th>Fecha de pago</th>
+                                <th>Método</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            <tr th:each="p : ${pagos}">
+
+                                <td th:text="${p.idPago}"></td>
+
+                                <!-- Relación Pago -> Citas -->
+                                <td th:text="${p.cita != null ? p.cita.idCita : '-'}">
+                                </td>
+
+                                <td class="monto">
+
+                                    S/
+                                    <span th:text="${p.monto}"></span>
+
+                                </td>
+
+                                <td th:text="${p.fechaPago != null ? p.fechaPago : '-'}">
+                                </td>
+
+                                <td th:text="${p.metodoPago}"></td>
+
+                                <td>
+
+                                    <span class="badge"
+                                          th:classappend="${p.estado == 'PAGADO'} ? 'badge-pagado' : (${p.estado == 'PENDIENTE'} ? 'badge-pendiente' : 'badge-cancelado')"
+                                          th:text="${p.estado}">
+                                    </span>
+
+                                </td>
+
+                            </tr>
+
+
+                            <!-- SIN REGISTROS -->
+                            <tr th:if="${pagos == null or #lists.isEmpty(pagos)}">
+
+                                <td colspan="6"
+                                    class="text-center text-muted py-4">
+
+                                    <i class="bi bi-receipt fs-2 d-block mb-2"></i>
+
+                                    No existen pagos registrados.
+
+                                </td>
+
+                            </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="text-center text-muted py-4">
+
+        <small>
+            © 2026 Centro Médico Buenos Aires de Villa
+            | Sistema de Gestión de Citas Médicas
+        </small>
+
+    </footer>
+
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>

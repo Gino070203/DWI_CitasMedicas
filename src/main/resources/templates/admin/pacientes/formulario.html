@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar Paciente</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-5">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h3>Registrar Paciente</h3>
+
+            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+
+            <form th:action="@{/admin/pacientes/guardar}" method="post">
+                <label class="form-label mt-3">Usuario paciente</label>
+                <select name="idUsuario" class="form-select" required>
+                    <option value="">Seleccione un usuario</option>
+                    <option th:each="u : ${usuarios}"
+                            th:value="${u.idUsuario}"
+                            th:text="${u.nombre + ' ' + u.apellido + ' - ' + u.dni}">
+                    </option>
+                </select>
+
+                <label class="form-label mt-3">Número de historia clínica</label>
+                <input name="numeroHistoria" class="form-control"
+                       maxlength="20" required>
+
+                <label class="form-label mt-3">Número SIS (opcional)</label>
+                <input name="sis" class="form-control" maxlength="20">
+
+                <label class="form-label mt-3">Fecha de nacimiento</label>
+                <input type="date" name="fechaNacimiento"
+                       class="form-control" required>
+
+                <label class="form-label mt-3">Género</label>
+                <select name="genero" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    <option value="MASCULINO">Masculino</option>
+                    <option value="FEMENINO">Femenino</option>
+                    <option value="OTRO">Otro</option>
+                </select>
+
+                <label class="form-label mt-3">Dirección</label>
+                <input name="direccion" class="form-control" maxlength="100">
+
+                <button class="btn btn-success mt-4">Guardar paciente</button>
+                <a th:href="@{/admin/pacientes}" class="btn btn-secondary mt-4">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+</body>
+</html>
