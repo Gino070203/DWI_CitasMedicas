@@ -1,4 +1,4 @@
-package com.Citas.Medicas.Horarios;
+package com.Citas.Medicas.horarios;
 
 import jakarta.persistence.*;
 import java.time.LocalTime;

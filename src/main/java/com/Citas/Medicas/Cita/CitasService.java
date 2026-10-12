@@ -8,8 +8,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.Citas.Medicas.Horarios.Horarios;
-import com.Citas.Medicas.Horarios.HorariosRepository;
+import com.Citas.Medicas.horarios.Horarios;
+import com.Citas.Medicas.horarios.HorariosRepository;
 import com.Citas.Medicas.Medico.Medico;
 import com.Citas.Medicas.Medico.MedicoRepository;
 import com.Citas.Medicas.Paciente.Paciente;

@@ -3,7 +3,7 @@ package com.Citas.Medicas.Cita;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import com.Citas.Medicas.Horarios.Horarios;
+import com.Citas.Medicas.horarios.Horarios;
 import com.Citas.Medicas.Medico.Medico;
 import com.Citas.Medicas.Paciente.Paciente;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.Citas.Medicas.Horarios.HorariosRepository;
+import com.Citas.Medicas.horarios.HorariosRepository;
 import com.Citas.Medicas.Medico.MedicoRepository;
 import com.Citas.Medicas.Paciente.PacienteRepository;
 
