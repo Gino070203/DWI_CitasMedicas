@@ -1,7 +1,11 @@
 package com.Citas.Medicas.Paciente;
 
+
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,8 +14,51 @@ import com.Citas.Medicas.Medico.MedicoRepository;
 import com.Citas.Medicas.Usuario.Usuario;
 import com.Citas.Medicas.Usuario.UsuarioRepository;
 
+import com.Citas.Medicas.Cita.Citas;
+import com.Citas.Medicas.Cita.CitasService;
+import com.Citas.Medicas.Cita.CitasRepository;
+import com.Citas.Medicas.Horarios.Horarios;
+import com.Citas.Medicas.Horarios.HorariosRepository;
+
 @Service
 public class PacienteService {
+
+	@Autowired
+    private PacienteRepository pacienteRepository;
+
+    @Autowired
+    private HorariosRepository horarioRepository;
+
+    @Autowired
+    private CitasRepository citaRepository;
+
+    @Autowired
+    private CitasService citasService;
+
+    public Paciente obtenerPacientePorUsuarioId(Long idUsuario) {
+        return pacienteRepository.findByUsuarioIdUsuario(idUsuario).orElse(null);
+    }
+
+    // Listar horarios disponibles por especialidad
+    public List<Horarios> obtenerHorariosPorEspecialidad(Long idEspecialidad) {
+        return horarioRepository.findByEspecialidadId(idEspecialidad).stream()
+                .filter(horario -> !citasService
+                        .generarTurnosDentroDelBloque(horario).isEmpty())
+                .toList();
+    }
+
+    public List<Citas> obtenerHistorialCitas(Long idPaciente) {
+        return citaRepository.findByPacienteId(idPaciente);
+    }
+
+    /** Delega la reserva para que use el mismo cálculo que administración. */
+    @Transactional
+    public Citas reservarCita(Long idPaciente, Long idHorario,
+                              LocalDate fechaCita, LocalTime horaInicio) {
+        return citasService.reservarPaciente(
+                idPaciente, idHorario, fechaCita, horaInicio);
+    }
+
 
     private final PacienteRepository pacientes;
     private final UsuarioRepository usuarios;
@@ -53,13 +100,22 @@ public class PacienteService {
                 "El usuario no tiene rol PACIENTE");
         }
 
-        if (pacientes.existePorUsuario(idUsuario)
-                || medicos.existePorUsuario(idUsuario)) {
+        if (medicos.existePorUsuario(idUsuario)) {
             throw new IllegalArgumentException(
                 "El usuario ya tiene un perfil");
         }
 
-        Paciente paciente = new Paciente();
+        Paciente pacienteExistente = pacientes.findByUsuarioIdUsuario(idUsuario)
+                .orElse(null);
+        if (pacienteExistente != null
+                && pacienteExistente.getNumeroHistoria() != null
+                && !pacienteExistente.getNumeroHistoria().isBlank()) {
+            throw new IllegalArgumentException(
+                    "El usuario ya tiene un perfil de paciente completo; utiliza la opción de edición.");
+        }
+
+        Paciente paciente = pacienteExistente != null
+                ? pacienteExistente : new Paciente();
         paciente.setUsuario(usuario);
         paciente.setEstado(true);
 

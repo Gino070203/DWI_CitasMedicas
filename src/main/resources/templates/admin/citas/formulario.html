@@ -133,7 +133,8 @@
                         <!-- FORMULARIO -->
                         <form method="post"
                               th:action="@{/admin/citas/guardar}"
-                              id="formularioCita">
+                              id="formularioCita"
+                              th:attr="data-turnos-url=@{/admin/citas/turnos}">
 
                             <!-- PACIENTE -->
                             <h5 class="seccion mb-3">
@@ -204,7 +205,7 @@
 
                                 <label for="idHorario"
                                        class="form-label">
-                                    Horario de atención
+                                     Bloque semanal de atención
                                 </label>
 
                                 <select name="idHorario"
@@ -232,68 +233,44 @@
                                 </select>
 
                                 <small class="text-muted">
-                                    Selecciona un médico para consultar
-                                    sus días y horarios disponibles.
+                                    El bloque indica la franja recurrente; después elige una fecha
+                                    y un turno libre de <span th:text="${duracionConsultaMinutos}">30</span> minutos.
                                 </small>
 
                             </div>
 
                             <hr class="my-4">
 
-                            <!-- FECHA Y HORAS -->
+                            <!-- FECHA Y TURNO CONCRETO -->
                             <h5 class="seccion mb-3">
                                 <i class="bi bi-clock-history me-2"></i>
-                                Fecha y hora de la cita
+                                Fecha y turno de la cita
                             </h5>
 
-                            <div class="row g-3">
-
+                            <div class="row g-3 align-items-end">
                                 <div class="col-md-4">
-
-                                    <label for="fecha"
-                                           class="form-label">
-                                        Fecha de atención
-                                    </label>
-
-                                    <input type="date"
-                                           name="fecha"
-                                           id="fecha"
-                                           class="form-control"
-                                           required>
-
+                                    <label for="fecha" class="form-label">Fecha de atención</label>
+                                    <input type="date" name="fecha" id="fecha"
+                                           class="form-control" required
+                                           th:attr="min=${fechaMinima},max=${fechaMaxima}">
                                 </div>
-
-                                <div class="col-md-4">
-
-                                    <label for="horaInicio"
-                                           class="form-label">
-                                        Hora de inicio
-                                    </label>
-
-                                    <input type="time"
-                                           name="horaInicio"
-                                           id="horaInicio"
-                                           class="form-control"
-                                           required>
-
+                                <div class="col-md-8">
+                                    <label for="turnoDisponible" class="form-label">Turno libre</label>
+                                    <select id="turnoDisponible" name="horaInicio"
+                                            class="form-select" required disabled>
+                                        <option value="">Selecciona primero un bloque y una fecha</option>
+                                    </select>
                                 </div>
-
-                                <div class="col-md-4">
-
-                                    <label for="horaFin"
-                                           class="form-label">
-                                        Hora de fin
-                                    </label>
-
-                                    <input type="time"
-                                           name="horaFin"
-                                           id="horaFin"
-                                           class="form-control"
-                                           required>
-
+                                <div class="col-md-6">
+                                    <label for="horaInicio" class="form-label">Inicio</label>
+                                    <input type="time" id="horaInicio" class="form-control" readonly tabindex="-1">
                                 </div>
-
+                                <div class="col-md-6">
+                                    <label for="horaFin" class="form-label">Fin</label>
+                                    <input type="time" id="horaFin" class="form-control" readonly tabindex="-1">
+                                </div>
                             </div>
+                            <div id="errorTurnos" class="text-danger small mt-2" role="alert" hidden></div>
 
                             <!-- INFORMACIÓN -->
                             <div class="info-box mt-4">
@@ -301,11 +278,8 @@
                                 <i class="bi bi-info-circle-fill text-primary me-2"></i>
 
                                 <strong>Importante:</strong>
-                                La fecha de la cita debe corresponder
-                                al día de atención del médico.
-
-                                Las horas seleccionadas deben encontrarse
-                                dentro del horario disponible.
+                                Solo se pueden elegir turnos generados dentro del bloque semanal.
+                                El sistema confirma nuevamente la disponibilidad al guardar.
 
                             </div>
 
@@ -354,10 +328,13 @@
         const horarioSelect = document.getElementById("idHorario");
 
         const fechaInput = document.getElementById("fecha");
+        const turnoSelect = document.getElementById("turnoDisponible");
         const horaInicioInput = document.getElementById("horaInicio");
         const horaFinInput = document.getElementById("horaFin");
+        const errorTurnos = document.getElementById("errorTurnos");
 
         const formulario = document.getElementById("formularioCita");
+        let solicitudTurnos = 0;
 
         // TRADUCCIÓN DE LOS DÍAS
         const diasEspanol = {
@@ -380,6 +357,62 @@
             inicio: option.dataset.inicio,
             fin: option.dataset.fin
         }));
+
+        function limpiarTurnos(mensaje = "Selecciona primero un bloque y una fecha") {
+            turnoSelect.replaceChildren(new Option(mensaje, ""));
+            turnoSelect.disabled = true;
+            horaInicioInput.value = "";
+            horaFinInput.value = "";
+            errorTurnos.hidden = true;
+        }
+
+        async function cargarTurnos() {
+            const idHorario = horarioSelect.value;
+            const fecha = fechaInput.value;
+            const numeroSolicitud = ++solicitudTurnos;
+            limpiarTurnos("Consultando turnos libres…");
+
+            if (!idHorario || !fecha) {
+                return;
+            }
+
+            const url = new URL(formulario.dataset.turnosUrl, window.location.href);
+            url.searchParams.set("idHorario", idHorario);
+            url.searchParams.set("fecha", fecha);
+
+            try {
+                const respuesta = await fetch(url, {
+                    credentials: "same-origin",
+                    headers: { "Accept": "application/json" }
+                });
+                if (!respuesta.ok) {
+                    throw new Error("No fue posible consultar la disponibilidad.");
+                }
+                const turnos = await respuesta.json();
+                if (numeroSolicitud !== solicitudTurnos) {
+                    return;
+                }
+
+                turnoSelect.replaceChildren(new Option(
+                    turnos.length ? "Selecciona un turno" : "No hay turnos libres", ""));
+                turnos.forEach((turno) => {
+                    const opcion = new Option(
+                        `${turno.horaInicio} – ${turno.horaFin}`,
+                        turno.horaInicio);
+                    opcion.dataset.fin = turno.horaFin;
+                    turnoSelect.appendChild(opcion);
+                });
+                turnoSelect.disabled = turnos.length === 0;
+                errorTurnos.hidden = true;
+            } catch (_error) {
+                if (numeroSolicitud === solicitudTurnos) {
+                    limpiarTurnos("No se pudieron cargar los turnos.");
+                    errorTurnos.textContent =
+                        "No se pudo consultar la disponibilidad. Vuelve a intentarlo.";
+                    errorTurnos.hidden = false;
+                }
+            }
+        }
 
         // MOSTRAR SOLO HORARIOS DEL MÉDICO SELECCIONADO
         function actualizarHorarios() {
@@ -405,9 +438,9 @@
                         diasEspanol[horario.dia] || horario.dia;
 
                     opcion.textContent =
-                        diaTraducido + " - " +
-                        horario.inicio + " a " +
-                        horario.fin;
+                        diaTraducido + " · Bloque de " +
+                        horario.inicio.substring(0, 5) + " a " +
+                        horario.fin.substring(0, 5);
 
                     horarioSelect.appendChild(opcion);
                 }
@@ -416,26 +449,16 @@
 
             horaInicioInput.value = "";
             horaFinInput.value = "";
+            fechaInput.value = "";
+            limpiarTurnos();
         }
 
         medicoSelect.addEventListener("change", actualizarHorarios);
 
-        // COMPLETAR HORAS AL SELECCIONAR UN HORARIO
+        // CONSULTAR LOS TURNOS CONCRETOS AL ELEGIR BLOQUE Y FECHA
         horarioSelect.addEventListener("change", function () {
-
-            const opcion = horarioSelect.selectedOptions[0];
-
-            if (opcion && opcion.dataset.inicio && opcion.dataset.fin) {
-
-                horaInicioInput.value = opcion.dataset.inicio.substring(0, 5);
-                horaFinInput.value = opcion.dataset.fin.substring(0, 5);
-
-            } else {
-
-                horaInicioInput.value = "";
-                horaFinInput.value = "";
-            }
-
+            limpiarTurnos();
+            cargarTurnos();
         });
 
         // FECHA MÍNIMA: HOY
@@ -456,7 +479,14 @@
             return `${anio}-${mes}-${dia}`;
         }
 
-        fechaInput.min = obtenerFechaLocal();
+        fechaInput.min = fechaInput.min || obtenerFechaLocal();
+        fechaInput.addEventListener("change", cargarTurnos);
+
+        turnoSelect.addEventListener("change", function () {
+            const opcion = turnoSelect.selectedOptions[0];
+            horaInicioInput.value = opcion && opcion.value ? opcion.value : "";
+            horaFinInput.value = opcion && opcion.dataset.fin ? opcion.dataset.fin : "";
+        });
 
         // VALIDACIÓN ANTES DE GUARDAR
         formulario.addEventListener("submit", function (event) {
@@ -466,6 +496,13 @@
             if (!opcion || !opcion.dataset.dia) {
                 event.preventDefault();
                 alert("Selecciona un horario de atención válido.");
+                return;
+            }
+
+            if (!turnoSelect.value) {
+                event.preventDefault();
+                alert("Selecciona un turno libre.");
+                turnoSelect.focus();
                 return;
             }
 

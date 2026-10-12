@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import com.Citas.Medicas.Roles.Rol;
 import com.Citas.Medicas.Roles.RolRepository;
+import com.Citas.Medicas.Paciente.PacienteProvisioningService;
 import com.Citas.Medicas.Usuario.Usuario;
 import com.Citas.Medicas.Usuario.UsuarioRepository;
 
@@ -29,6 +30,9 @@ public class OAuth2UsuarioService extends DefaultOAuth2UserService{
 
     @Autowired
     private RolRepository rolRepository;
+
+    @Autowired
+    private PacienteProvisioningService pacienteProvisioningService;
 
     @Override
     @Transactional
@@ -57,6 +61,11 @@ public class OAuth2UsuarioService extends DefaultOAuth2UserService{
             nuevoUsuario.setRol(rolPaciente);
             return usuarioRepository.save(nuevoUsuario);
         });
+
+        if (usuario.getRol() != null
+                && "PACIENTE".equalsIgnoreCase(usuario.getRol().getNombre())) {
+            pacienteProvisioningService.asegurarPerfilPaciente(usuario.getIdUsuario());
+        }
         
      // 3. Definimos explícitamente el rol que Spring Security debe leer para este usuario de Google
         String nombreRol = usuario.getRol().getNombre(); // "PACIENTE"

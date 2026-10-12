@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{paciente/fragments :: head('Reservar una cita')}"></head>
+<body class="patient-page">
+
+<nav th:replace="~{paciente/fragments :: navegacion('reservar')}"></nav>
+
+<main class="patient-main">
+    <header class="mb-4">
+        <p class="patient-hero-eyebrow text-primary mb-2">Agenda tu atención</p>
+        <h1 class="patient-page-title">Reserva una cita</h1>
+    </header>
+
+    <div th:if="${param.error != null}" class="patient-alert patient-alert-danger mb-3" role="alert">
+        <i class="bi bi-exclamation-circle-fill me-2" aria-hidden="true"></i>
+        <span th:if="${param.error[0] == 'NoPaciente'}">No encontramos un perfil de paciente asociado a tu cuenta.</span>
+        <span th:unless="${param.error[0] == 'NoPaciente'}">No se pudo completar la reserva. Revisa la fecha y el horario seleccionado e inténtalo nuevamente.</span>
+    </div>
+
+    <section class="patient-panel" aria-labelledby="seleccionEspecialidad">
+        <div class="d-flex align-items-start gap-3 mb-3">
+            <span class="patient-action-icon mb-0" aria-hidden="true">
+                <i class="bi bi-heart-pulse"></i>
+            </span>
+            <div>
+                <h2 class="patient-panel-heading mb-1" id="seleccionEspecialidad">1. Elige una especialidad</h2>
+                <p class="patient-page-intro">Verás los bloques semanales del médico y los turnos concretos que siguen libres.</p>
+            </div>
+        </div>
+
+        <form method="get" th:action="@{/paciente/reservar}">
+            <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-8">
+                    <label class="patient-form-label" for="idEspecialidad">Especialidad médica</label>
+                    <select class="form-select patient-form-select" id="idEspecialidad"
+                            name="idEspecialidad" required>
+                        <option value="" disabled th:selected="${especialidadSeleccionada == null}">
+                            Selecciona una especialidad
+                        </option>
+                        <option th:each="esp : ${especialidades}"
+                                th:value="${esp.idEspecialidad}"
+                                th:text="${esp.nombre}"
+                                th:selected="${esp.idEspecialidad == especialidadSeleccionada}">
+                            Especialidad
+                        </option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-4">
+                    <button class="btn patient-btn-primary w-100" type="submit">
+                        <i class="bi bi-search me-2" aria-hidden="true"></i>Ver disponibilidad
+                    </button>
+                </div>
+            </div>
+        </form>
+    </section>
+
+    <section th:if="${horarios != null and not #lists.isEmpty(horarios)}"
+             class="mt-4" aria-labelledby="horariosDisponibles">
+        <div class="d-flex flex-wrap justify-content-between align-items-end gap-2">
+            <div>
+                <h2 class="patient-section-heading mb-1" id="horariosDisponibles">2. Elige un bloque y una fecha</h2>
+                <p class="patient-page-intro">
+                    Cada bloque se divide en turnos de
+                    <strong th:text="${duracionConsultaMinutos}">30</strong> minutos.
+                    Se muestran los próximos 90 días.
+                </p>
+            </div>
+            <span class="patient-badge status-neutral"
+                  th:text="|${#lists.size(horarios)} bloques de atención|">Bloques de atención</span>
+        </div>
+
+        <div class="availability-legend" aria-label="Leyenda del calendario">
+            <span><i class="availability-legend-dot availability-legend-free" aria-hidden="true"></i>Hay al menos un turno libre</span>
+            <span><i class="availability-legend-dot availability-legend-busy" aria-hidden="true"></i>No atiende o todos los turnos están ocupados</span>
+            <span><i class="availability-legend-dot availability-legend-past" aria-hidden="true"></i>Fecha pasada</span>
+            <span><i class="availability-legend-dot availability-legend-past" aria-hidden="true"></i>Fuera de los próximos 90 días</span>
+        </div>
+
+        <div class="patient-cards-grid">
+            <article class="slot-card" th:each="h : ${horarios}">
+                <div class="slot-card-top">
+                    <span class="slot-icon" aria-hidden="true">
+                        <i class="bi bi-person-badge"></i>
+                    </span>
+                    <div class="flex-grow-1">
+                        <h3 th:text="${h.medico.usuario.nombre + ' ' + h.medico.usuario.apellido}">Nombre del médico</h3>
+                        <p class="slot-specialty"
+                           th:text="${h.medico.especialidad != null ? h.medico.especialidad.nombre : 'Especialidad médica'}">
+                            Especialidad
+                        </p>
+                    </div>
+                    <span class="day-badge slot-day" th:switch="${#strings.toUpperCase(h.diaSemana ?: '')}">
+                        <span th:case="'MONDAY'">Lunes</span>
+                        <span th:case="'TUESDAY'">Martes</span>
+                        <span th:case="'WEDNESDAY'">Miércoles</span>
+                        <span th:case="'THURSDAY'">Jueves</span>
+                        <span th:case="'FRIDAY'">Viernes</span>
+                        <span th:case="'SATURDAY'">Sábado</span>
+                        <span th:case="'SUNDAY'">Domingo</span>
+                        <span th:case="*" th:text="${h.diaSemana ?: 'Día por confirmar'}">Día</span>
+                    </span>
+                </div>
+
+                <div class="slot-details">
+                    <div>
+                        <span class="detail-label">Inicio del bloque</span>
+                        <span class="detail-value" th:text="${h.horaInicio}">09:00</span>
+                    </div>
+                    <div>
+                        <span class="detail-label">Fin del bloque</span>
+                        <span class="detail-value" th:text="${h.horaFin}">10:00</span>
+                    </div>
+                </div>
+
+                <form th:action="@{/paciente/reservar}" method="post">
+                    <input type="hidden" name="idHorario" th:value="${h.idHorario}">
+                    <input type="hidden" name="idEspecialidad"
+                           th:value="${especialidadSeleccionada}">
+                    <label class="patient-form-label" th:for="|fechaCita-${h.idHorario}|">
+                        3. Fecha de atención
+                    </label>
+                    <input class="form-control patient-form-control mb-3"
+                           type="text" name="fechaCita" required readonly
+                           autocomplete="off" placeholder="Selecciona una fecha disponible"
+                           data-calendario-disponibilidad
+                           th:id="|fechaCita-${h.idHorario}|"
+                           th:attr="data-fechas-disponibles=${fechasDisponiblesPorHorario[h.idHorario]},
+                                    data-fecha-minima=${fechaMinimaCalendario},
+                                    data-fecha-maxima=${fechaMaximaCalendario},
+                                    data-turnos-url=@{/paciente/reservar/turnos},
+                                    data-id-horario=${h.idHorario}">
+                    <p class="patient-alert patient-alert-danger mb-3" role="alert"
+                       data-error-calendario hidden></p>
+
+                    <fieldset class="patient-slot-picker mb-3" data-turnos-container hidden>
+                        <legend class="patient-form-label">4. Selecciona un turno</legend>
+                        <p class="form-text" data-turnos-cargando hidden>
+                            Consultando turnos libres…
+                        </p>
+                        <div class="patient-slot-options" data-turnos-opciones
+                             role="radiogroup" aria-label="Turnos disponibles">
+                        </div>
+                        <p class="form-text mb-0" data-turnos-vacios hidden>
+                            No quedan turnos libres para esta fecha. Elige otra.
+                        </p>
+                    </fieldset>
+
+                    <button class="btn patient-btn-primary" type="submit" disabled
+                            data-boton-reserva>
+                        <i class="bi bi-calendar-check me-2" aria-hidden="true"></i>Reservar este turno
+                    </button>
+                </form>
+            </article>
+        </div>
+    </section>
+
+    <section th:if="${horarios != null and #lists.isEmpty(horarios)}"
+             class="patient-empty-state mt-4">
+        <span class="patient-empty-icon" aria-hidden="true">
+            <i class="bi bi-calendar2-minus"></i>
+        </span>
+        <h2>No hay bloques de atención disponibles</h2>
+        <p>Por ahora no encontramos turnos para esta especialidad. Puedes elegir otra o volver a consultar más tarde.</p>
+    </section>
+
+    <section th:if="${especialidadSeleccionada == null}" class="patient-empty-state mt-4">
+        <span class="patient-empty-icon" aria-hidden="true">
+            <i class="bi bi-calendar2-week"></i>
+        </span>
+        <h2>Encuentra el horario adecuado</h2>
+        <p>Selecciona una especialidad para ver los médicos y sus días de atención.</p>
+    </section>
+</main>
+
+<footer class="patient-footer">Centro Médico · Portal del paciente</footer>
+<th:block th:replace="~{paciente/fragments :: scripts}"></th:block>
+<th:block th:replace="~{paciente/fragments :: scriptsReserva}"></th:block>
+</body>
+</html>

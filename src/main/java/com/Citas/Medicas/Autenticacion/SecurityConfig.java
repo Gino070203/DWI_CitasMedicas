@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.*;
 
 import com.Citas.Medicas.Autenticacion.Servicios.OAuth2UsuarioService;
 
@@ -56,9 +57,9 @@ public class SecurityConfig {
                     .successHandler(accesoAutorizado)
                 )
             .logout(logout -> logout
-                .logoutSuccessUrl("/login?logout")
-                .permitAll()
-            );
+                    .logoutSuccessUrl("/login?logout=true")
+                    .permitAll()
+                );
 
         return http.build();
     }

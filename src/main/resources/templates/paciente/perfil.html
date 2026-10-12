@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{paciente/fragments :: head('Mi perfil')}"></head>
+<body class="patient-page">
+
+<nav th:replace="~{paciente/fragments :: navegacion('perfil')}"></nav>
+
+<main class="patient-main">
+    <header class="mb-4">
+        <p class="patient-hero-eyebrow mb-2">Tu cuenta</p>
+        <h1 class="patient-page-title">Mi perfil</h1>
+        <p class="patient-page-intro">Mantén actualizados tus datos personales y de contacto.</p>
+    </header>
+
+    <div th:if="${perfilActualizado}" class="patient-alert patient-alert-success mb-3"
+         role="status" th:text="${perfilActualizado}">
+        Tus datos se actualizaron correctamente.
+    </div>
+    <div th:if="${perfilIncompleto}" class="patient-alert patient-alert-warning mb-3"
+         role="status" th:text="${perfilIncompleto}">
+        Completa tus datos personales antes de reservar una cita.
+    </div>
+
+    <section class="patient-panel mb-4" aria-labelledby="datosCuentaTitulo">
+        <h2 class="patient-panel-heading" id="datosCuentaTitulo">Datos de la cuenta</h2>
+        <dl class="patient-profile-readonly mb-0">
+            <dt>Correo de acceso</dt>
+            <dd th:text="${perfilVista.correo ?: 'No registrado'}">correo@ejemplo.com</dd>
+        </dl>
+        <p class="form-text mt-2 mb-0">
+            El correo se utiliza para iniciar sesión. Para cambiarlo, primero se debe verificar la nueva dirección.
+        </p>
+    </section>
+
+    <form th:action="@{/paciente/perfil}" th:object="${formularioPerfil}" method="post">
+        <section class="patient-panel mb-4" aria-labelledby="datosPersonalesTitulo">
+            <h2 class="patient-panel-heading" id="datosPersonalesTitulo">Datos personales</h2>
+
+            <div th:if="${#fields.hasGlobalErrors()}"
+                 class="patient-alert patient-alert-danger mb-3" role="alert">
+                <p class="mb-0" th:each="error : ${#fields.globalErrors()}" th:text="${error}"></p>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilNombre">Nombre</label>
+                    <input id="perfilNombre" type="text" autocomplete="given-name"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('nombre')} ? ' is-invalid' : ''"
+                           th:field="*{nombre}" maxlength="60" required>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilApellido">Apellido</label>
+                    <input id="perfilApellido" type="text" autocomplete="family-name"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('apellido')} ? ' is-invalid' : ''"
+                           th:field="*{apellido}" maxlength="60" required>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('apellido')}" th:errors="*{apellido}"></div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilDni">DNI</label>
+                    <input id="perfilDni" type="text" inputmode="numeric" autocomplete="off"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('dni')} ? ' is-invalid' : ''"
+                           th:field="*{dni}" maxlength="8" minlength="8"
+                           pattern="[0-9]{8}" aria-describedby="ayudaDni" required>
+                    <div id="ayudaDni" class="form-text">Debe contener exactamente 8 dígitos.</div>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('dni')}" th:errors="*{dni}"></div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilTelefono">Teléfono</label>
+                    <input id="perfilTelefono" type="tel" inputmode="tel" autocomplete="tel"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('telefono')} ? ' is-invalid' : ''"
+                           th:field="*{telefono}" maxlength="20"
+                           placeholder="Ej. +51 987 654 321">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></div>
+                </div>
+
+                <div class="col-12">
+                    <label class="patient-form-label" for="perfilDireccion">Dirección</label>
+                    <input id="perfilDireccion" type="text" autocomplete="street-address"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('direccion')} ? ' is-invalid' : ''"
+                           th:field="*{direccion}" maxlength="100">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('direccion')}" th:errors="*{direccion}"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="patient-panel mb-4" aria-labelledby="datosPacienteTitulo">
+            <h2 class="patient-panel-heading" id="datosPacienteTitulo">Datos de paciente</h2>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilNacimiento">Fecha de nacimiento</label>
+                    <input id="perfilNacimiento" type="date"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('fechaNacimiento')} ? ' is-invalid' : ''"
+                           th:field="*{fechaNacimiento}"
+                           th:attr="max=${fechaMaximaNacimiento}" required>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('fechaNacimiento')}"
+                         th:errors="*{fechaNacimiento}"></div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilGenero">Género</label>
+                    <select id="perfilGenero" class="form-select patient-form-select"
+                            th:classappend="${#fields.hasErrors('genero')} ? ' is-invalid' : ''"
+                            th:field="*{genero}" required>
+                        <option value="">Selecciona una opción</option>
+                        <option value="MASCULINO">Masculino</option>
+                        <option value="FEMENINO">Femenino</option>
+                        <option value="OTRO">Otro</option>
+                    </select>
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('genero')}" th:errors="*{genero}"></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="patient-panel mb-4" aria-labelledby="datosProtegidosTitulo">
+            <h2 class="patient-panel-heading" id="datosProtegidosTitulo">Datos administrados por el centro médico</h2>
+            <dl class="patient-profile-readonly mb-2">
+                <dt>Número de historia clínica</dt>
+                <dd th:text="${perfilVista.numeroHistoria ?: 'No registrado'}">No registrado</dd>
+                <dt>SIS</dt>
+                <dd th:text="${perfilVista.sis ?: 'No registrado'}">No registrado</dd>
+            </dl>
+            <p class="form-text mb-0">
+                Estos datos no se modifican desde el portal. Si necesitas corregirlos, comunícate con el centro médico.
+            </p>
+        </section>
+
+        <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <a class="btn patient-btn-outline" th:href="@{/paciente/dashboard}">Cancelar</a>
+            <button class="btn patient-btn-primary" type="submit">
+                <i class="bi bi-check2-circle me-2" aria-hidden="true"></i>Guardar cambios
+            </button>
+        </div>
+    </form>
+</main>
+
+<footer class="patient-footer">Centro Médico · Portal del paciente</footer>
+<th:block th:replace="~{paciente/fragments :: scripts}"></th:block>
+</body>
+</html>

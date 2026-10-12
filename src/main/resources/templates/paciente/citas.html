@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{paciente/fragments :: head('Mis citas e historial')}"></head>
+<body class="patient-page">
+
+<nav th:replace="~{paciente/fragments :: navegacion('historial')}"></nav>
+
+<main class="patient-main">
+    <header class="mb-4">
+        <h1 class="patient-page-title">Mis citas e historial</h1>
+    </header>
+
+    <div th:if="${param.exito != null and param.exito[0] == 'sis'}"
+         class="patient-alert patient-alert-success mb-3" role="status">
+        <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+        Tu cita fue reservada y confirmada correctamente.
+    </div>
+    <div th:if="${param.exito != null and param.exito[0] == 'pendiente'}"
+         class="patient-alert patient-alert-warning mb-3" role="status">
+        <i class="bi bi-clock-history me-2" aria-hidden="true"></i>
+        Tu cita está pendiente de confirmación. Revisa las indicaciones del centro médico.
+    </div>
+
+    <section th:if="${citas != null and not #lists.isEmpty(citas)}"
+             class="patient-cards-grid" aria-label="Citas registradas">
+        <article class="appointment-card" th:each="c : ${citas}">
+            <div class="appointment-card-top">
+                <div class="appointment-date">
+                    <span class="appointment-date-icon" aria-hidden="true">
+                        <i class="bi bi-calendar-event"></i>
+                    </span>
+                    <span th:text="${c.fecha != null ? #temporals.format(c.fecha, 'dd/MM/yyyy') : 'Fecha pendiente'}">
+                        10/06/2026
+                    </span>
+                </div>
+                <span th:switch="${#strings.toUpperCase(c.estado ?: '')}">
+                    <span th:case="'CONFIRMADA'" class="patient-badge status-confirmada">
+                        <i class="bi bi-check-circle" aria-hidden="true"></i>Confirmada
+                    </span>
+                    <span th:case="'PENDIENTE'" class="patient-badge status-pendiente">
+                        <i class="bi bi-hourglass-split" aria-hidden="true"></i>Pendiente
+                    </span>
+                    <span th:case="'CANCELADA'" class="patient-badge status-cancelada">
+                        <i class="bi bi-x-circle" aria-hidden="true"></i>Cancelada
+                    </span>
+                    <span th:case="*" class="patient-badge status-neutral"
+                          th:text="${c.estado ?: 'Estado pendiente'}">Estado</span>
+                </span>
+            </div>
+
+            <h2 class="appointment-card-title"
+                th:text="${c.medico != null and c.medico.usuario != null ? 'Dr. ' + c.medico.usuario.nombre + ' ' + c.medico.usuario.apellido : 'Profesional de salud'}">
+                Profesional de salud
+            </h2>
+            <p class="appointment-specialty"
+               th:text="${c.medico != null and c.medico.especialidad != null ? c.medico.especialidad.nombre : 'Atención médica'}">
+                Especialidad
+            </p>
+
+            <div class="appointment-details">
+                <div>
+                    <span class="detail-label">Horario</span>
+                    <span class="detail-value"
+                          th:text="${c.horaInicio != null ? c.horaInicio : 'Por confirmar'} + (${c.horaFin != null ? ' – ' + c.horaFin : ''})">
+                        09:00 – 10:00
+                    </span>
+                </div>
+                <div>
+                    <span class="detail-label">Día de atención</span>
+                    <span class="detail-value" th:switch="${c.horario != null ? #strings.toUpperCase(c.horario.diaSemana ?: '') : ''}">
+                        <span th:case="'MONDAY'">Lunes</span>
+                        <span th:case="'TUESDAY'">Martes</span>
+                        <span th:case="'WEDNESDAY'">Miércoles</span>
+                        <span th:case="'THURSDAY'">Jueves</span>
+                        <span th:case="'FRIDAY'">Viernes</span>
+                        <span th:case="'SATURDAY'">Sábado</span>
+                        <span th:case="'SUNDAY'">Domingo</span>
+                        <span th:case="*" th:text="${c.horario != null ? c.horario.diaSemana : 'No disponible'}">No disponible</span>
+                    </span>
+                </div>
+            </div>
+
+            <div>
+                <span class="detail-label">Diagnóstico / observaciones</span>
+                <p class="appointment-notes mb-0"
+                   th:text="${c.diagnostico != null and !#strings.isEmpty(c.diagnostico) ? c.diagnostico : 'Aún no hay observaciones registradas.'}">
+                    Aún no hay observaciones registradas.
+                </p>
+            </div>
+        </article>
+    </section>
+
+    <section th:if="${citas == null or #lists.isEmpty(citas)}" class="patient-empty-state">
+        <span class="patient-empty-icon" aria-hidden="true">
+            <i class="bi bi-calendar2-x"></i>
+        </span>
+        <h2>Aún no tienes citas</h2>
+        <p>Cuando reserves una consulta, encontrarás aquí la fecha, el horario y su estado.</p>
+        <a class="btn patient-btn-primary" th:href="@{/paciente/reservar}">
+            <i class="bi bi-calendar-plus me-2" aria-hidden="true"></i>Buscar un horario
+        </a>
+    </section>
+</main>
+
+<footer class="patient-footer">Centro Médico · Portal del paciente</footer>
+<th:block th:replace="~{paciente/fragments :: scripts}"></th:block>
+</body>
+</html>

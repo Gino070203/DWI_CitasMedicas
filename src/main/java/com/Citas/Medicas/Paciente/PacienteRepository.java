@@ -1,6 +1,7 @@
 package com.Citas.Medicas.Paciente;
 
 import java.util.List;
+
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,12 +11,18 @@ import org.springframework.data.repository.query.Param;
 public interface PacienteRepository
         extends JpaRepository<Paciente, Long> {
 
+
+    Optional<Paciente> findByUsuarioIdUsuario(Long idUsuario);
+
     @Query("""
         SELECT p FROM Paciente p
         JOIN FETCH p.usuario u
         ORDER BY u.apellido, u.nombre
     """)
     List<Paciente> listarPacientes();
+
+
+
 
     @Query("""
         SELECT p FROM Paciente p
