@@ -1,6 +1,8 @@
 package com.Citas.Medicas.horarios;
 
 import java.time.LocalTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
@@ -29,13 +31,19 @@ public class HorariosAdminController {
 
     @GetMapping
     public String listar(Model model) {
-        model.addAttribute("horarios", service.listar());
+        List<Horarios> bloques = service.listar();
+        model.addAttribute("horarios", bloques);
+        model.addAttribute("turnosPorBloque", bloques.stream()
+                .collect(Collectors.toMap(Horarios::getIdHorario,
+                        service::contarTurnosPosibles)));
+        model.addAttribute("duracionConsultaMinutos", service.getDuracionConsultaMinutos());
         return "admin/horarios/lista";
     }
 
     @GetMapping("/nuevo")
     public String nuevo(Model model) {
         model.addAttribute("medicos", medicos.listarMedicosActivos());
+        model.addAttribute("duracionConsultaMinutos", service.getDuracionConsultaMinutos());
         return "admin/horarios/formulario";
     }
 

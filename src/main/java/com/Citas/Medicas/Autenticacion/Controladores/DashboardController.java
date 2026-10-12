@@ -15,12 +15,5 @@ public class DashboardController {
         return "medico/dashboard";
     }
 
-    // ==========================================
-    // DASHBOARD DEL PACIENTE
-    // ==========================================
-    @GetMapping("/paciente/dashboard")
-    public String vistaPaciente() {
-        return "paciente/dashboard";
-    }
 
 }

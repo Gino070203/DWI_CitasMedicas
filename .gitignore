@@ -11,6 +11,7 @@ target/
 .env
 .env.*
 !.env.example
+/src/main/resources/application.properties
 
 # Configuraciones locales
 application-local.properties
@@ -57,10 +58,6 @@ Thumbs.db
 desktop.ini
 
 
-# Variables de entorno y secretos
-.env
-.env.*
-!.env.example
 
-# Credenciales privadas de Spring Boot
-/src/main/resources/application.properties
+# IDE caches
+.metals/

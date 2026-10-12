@@ -11,6 +11,7 @@ import com.Citas.Medicas.Roles.Rol;
 import com.Citas.Medicas.Roles.RolRepository;
 import com.Citas.Medicas.Medico.MedicoRepository;
 import com.Citas.Medicas.Paciente.PacienteRepository;
+import com.Citas.Medicas.Paciente.PacienteProvisioningService;
 
 @Service
 public class UsuarioAdminService {
@@ -19,6 +20,7 @@ public class UsuarioAdminService {
     private final RolRepository roles;
     private final MedicoRepository medicos;
     private final PacienteRepository pacientes;
+    private final PacienteProvisioningService pacienteProvisioningService;
     private final PasswordEncoder encoder;
 
     public UsuarioAdminService(
@@ -26,11 +28,13 @@ public class UsuarioAdminService {
             RolRepository roles,
             MedicoRepository medicos,
             PacienteRepository pacientes,
+            PacienteProvisioningService pacienteProvisioningService,
             PasswordEncoder encoder) {
         this.usuarios = usuarios;
         this.roles = roles;
         this.medicos = medicos;
         this.pacientes = pacientes;
+        this.pacienteProvisioningService = pacienteProvisioningService;
         this.encoder = encoder;
     }
 
@@ -126,7 +130,12 @@ public class UsuarioAdminService {
             usuario.setContraseña(encoder.encode(password));
         }
 
-        return usuarios.save(usuario);
+        Usuario usuarioGuardado = usuarios.save(usuario);
+        if ("PACIENTE".equalsIgnoreCase(nombreRol)) {
+            pacienteProvisioningService.asegurarPerfilPaciente(
+                    usuarioGuardado.getIdUsuario());
+        }
+        return usuarioGuardado;
     }
 
     @Transactional
