@@ -50,4 +50,10 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT m FROM Medico m WHERE m.idMedico = :id")
     Optional<Medico> bloquearMedico(@Param("id") Long id);
+
+        @Query("""
+        SELECT m FROM Medico m JOIN FETCH m.usuario u JOIN FETCH m.especialidad
+        WHERE LOWER(u.correo) = LOWER(:correo)
+    """)
+    Optional<Medico> buscarPorCorreo(@Param("correo") String correo);
 }

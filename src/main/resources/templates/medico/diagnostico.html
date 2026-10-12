@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar diagnóstico | Centro Médico Buenos Aires de Villa</title>
+    <link rel="stylesheet" th:href="@{/css/medico.css}">
+</head>
+<body>
+
+<div class="topbar">
+    <h1>Centro Médico Buenos Aires de Villa</h1>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Cerrar sesión</button>
+    </form>
+</div>
+
+<div class="contenedor">
+    <div class="formulario">
+
+        <div class="cabecera">
+            <h2>Registrar diagnóstico</h2>
+            <p>Anota el diagnóstico y las indicaciones para el paciente.</p>
+        </div>
+
+        <div class="cuerpo">
+            <div class="aviso err" th:if="${error}" th:text="${error}"></div>
+
+            <div class="datos">
+                <div class="campo">
+                    <span>Paciente</span>
+                    <strong th:text="${cita.paciente.usuario.nombre + ' ' + cita.paciente.usuario.apellido}"></strong>
+                </div>
+                <div class="campo">
+                    <span>DNI</span>
+                    <strong th:text="${cita.paciente.usuario.dni}"></strong>
+                </div>
+                <div class="campo">
+                    <span>Fecha y hora</span>
+                    <strong th:text="${#temporals.format(cita.fecha, 'dd/MM/yyyy') + ' · ' + cita.horaInicio + ' - ' + cita.horaFin}"></strong>
+                </div>
+                <div class="campo">
+                    <span>Estado</span>
+                    <strong th:text="${cita.estado}"></strong>
+                </div>
+            </div>
+
+            <form th:action="@{/medico/citas/{id}/diagnostico(id=${cita.idCita})}" method="post">
+                <label for="diagnostico">Diagnóstico e indicaciones (máximo 500 caracteres)</label>
+                <textarea id="diagnostico" name="diagnostico" rows="7" maxlength="500" required
+                          th:text="${cita.diagnostico}"></textarea>
+
+                <div class="acciones">
+                    <button type="submit" class="btn btn-verde">Guardar y marcar como atendida</button>
+                    <a class="btn btn-borde" th:href="@{/medico/dashboard}">Volver</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="pie">© 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas</div>
+</div>
+
+</body>
+</html>
