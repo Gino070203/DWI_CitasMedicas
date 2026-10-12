@@ -1,0 +1,560 @@
+
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Registrar Cita Médica | Centro Médico</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f3f6fb;
+            font-family: Arial, sans-serif;
+            color: #24364b;
+        }
+
+        .navbar {
+            background: linear-gradient(90deg, #123b70, #1767b2);
+        }
+
+        .form-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .form-header {
+            background: linear-gradient(90deg, #163e70, #2477c4);
+            color: white;
+            padding: 28px;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            padding: 11px;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #2477c4;
+            box-shadow: 0 0 0 0.2rem rgba(36,119,196,0.15);
+        }
+
+        .seccion {
+            color: #163e70;
+            font-weight: bold;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border-left: 4px solid #2563eb;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .btn-success {
+            background: #15803d;
+            border-color: #15803d;
+        }
+
+        .btn-success:hover {
+            background: #166534;
+            border-color: #166534;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- BARRA SUPERIOR -->
+    <nav class="navbar navbar-dark shadow-sm">
+        <div class="container-fluid px-4">
+
+            <a class="navbar-brand fw-bold"
+               th:href="@{/admin/dashboard}">
+
+                <i class="bi bi-hospital me-2"></i>
+                Centro Médico Buenos Aires de Villa
+            </a>
+
+            <a th:href="@{/admin/citas}"
+               class="btn btn-outline-light btn-sm">
+                <i class="bi bi-arrow-left me-1"></i>
+                Volver a citas
+            </a>
+
+        </div>
+    </nav>
+
+    <main class="container py-5">
+
+        <div class="row justify-content-center">
+            <div class="col-lg-9">
+
+                <div class="card form-card shadow-sm">
+
+                    <!-- ENCABEZADO -->
+                    <div class="form-header">
+
+                        <h3 class="mb-2">
+                            <i class="bi bi-calendar-plus me-2"></i>
+                            Registrar nueva cita médica
+                        </h3>
+
+                        <p class="mb-0">
+                            Completa la información del paciente,
+                            médico y horario de atención.
+                        </p>
+
+                    </div>
+
+                    <div class="card-body p-4 p-md-5">
+
+                        <!-- MENSAJES DE ERROR -->
+                        <div th:if="${error}"
+                             class="alert alert-danger"
+                             th:text="${error}">
+                        </div>
+
+                        <!-- FORMULARIO -->
+                        <form method="post"
+                              th:action="@{/admin/citas/guardar}"
+                              id="formularioCita">
+
+                            <!-- PACIENTE -->
+                            <h5 class="seccion mb-3">
+                                <i class="bi bi-person me-2"></i>
+                                Datos del paciente
+                            </h5>
+
+                            <div class="mb-4">
+
+                                <label for="idPaciente"
+                                       class="form-label">
+                                    Paciente
+                                </label>
+
+                                <select name="idPaciente"
+                                        id="idPaciente"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        Seleccione un paciente
+                                    </option>
+
+                                    <option th:each="p : ${pacientes}"
+                                            th:value="${p.idPaciente}"
+                                            th:text="${p.usuario.nombre + ' ' + p.usuario.apellido + ' - DNI: ' + p.usuario.dni}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- MÉDICO -->
+                            <h5 class="seccion mb-3">
+                                <i class="bi bi-person-badge me-2"></i>
+                                Datos del médico
+                            </h5>
+
+                            <div class="mb-4">
+
+                                <label for="idMedico"
+                                       class="form-label">
+                                    Médico
+                                </label>
+
+                                <select name="idMedico"
+                                        id="idMedico"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        Seleccione un médico
+                                    </option>
+
+                                    <option th:each="m : ${medicos}"
+                                            th:value="${m.idMedico}"
+                                            th:text="${m.usuario.nombre + ' ' + m.usuario.apellido + ' - ' + m.especialidad.nombre}">
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                            <!-- HORARIO EN ESPAÑOL -->
+                            <div class="mb-4">
+
+                                <label for="idHorario"
+                                       class="form-label">
+                                    Horario de atención
+                                </label>
+
+                                <select name="idHorario"
+                                        id="idHorario"
+                                        class="form-select"
+                                        required>
+
+                                    <option value="">
+                                        Seleccione primero un médico
+                                    </option>
+
+                                    <!--
+                                      Guardamos el día en inglés internamente,
+                                      pero JavaScript lo mostrará en español.
+                                    -->
+                                    <option th:each="h : ${horarios}"
+                                            th:if="${h.estado == true}"
+                                            th:value="${h.idHorario}"
+                                            th:attr="data-medico=${h.medico.idMedico},
+                                                     data-dia=${h.diaSemana},
+                                                     data-inicio=${h.horaInicio},
+                                                     data-fin=${h.horaFin}">
+                                    </option>
+
+                                </select>
+
+                                <small class="text-muted">
+                                    Selecciona un médico para consultar
+                                    sus días y horarios disponibles.
+                                </small>
+
+                            </div>
+
+                            <hr class="my-4">
+
+                            <!-- FECHA Y HORAS -->
+                            <h5 class="seccion mb-3">
+                                <i class="bi bi-clock-history me-2"></i>
+                                Fecha y hora de la cita
+                            </h5>
+
+                            <div class="row g-3">
+
+                                <div class="col-md-4">
+
+                                    <label for="fecha"
+                                           class="form-label">
+                                        Fecha de atención
+                                    </label>
+
+                                    <input type="date"
+                                           name="fecha"
+                                           id="fecha"
+                                           class="form-control"
+                                           required>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label for="horaInicio"
+                                           class="form-label">
+                                        Hora de inicio
+                                    </label>
+
+                                    <input type="time"
+                                           name="horaInicio"
+                                           id="horaInicio"
+                                           class="form-control"
+                                           required>
+
+                                </div>
+
+                                <div class="col-md-4">
+
+                                    <label for="horaFin"
+                                           class="form-label">
+                                        Hora de fin
+                                    </label>
+
+                                    <input type="time"
+                                           name="horaFin"
+                                           id="horaFin"
+                                           class="form-control"
+                                           required>
+
+                                </div>
+
+                            </div>
+
+                            <!-- INFORMACIÓN -->
+                            <div class="info-box mt-4">
+
+                                <i class="bi bi-info-circle-fill text-primary me-2"></i>
+
+                                <strong>Importante:</strong>
+                                La fecha de la cita debe corresponder
+                                al día de atención del médico.
+
+                                Las horas seleccionadas deben encontrarse
+                                dentro del horario disponible.
+
+                            </div>
+
+                            <!-- BOTONES -->
+                            <div class="d-flex flex-wrap gap-2 mt-4">
+
+                                <button type="submit"
+                                        class="btn btn-success px-4">
+
+                                    <i class="bi bi-check-circle me-1"></i>
+                                    Registrar cita
+
+                                </button>
+
+                                <a th:href="@{/admin/citas}"
+                                   class="btn btn-outline-secondary px-4">
+
+                                    <i class="bi bi-x-circle me-1"></i>
+                                    Cancelar
+
+                                </a>
+
+                            </div>
+
+                        </form>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="text-center text-muted py-4">
+        <small>
+            © 2026 Centro Médico Buenos Aires de Villa |
+            Sistema de Gestión de Citas Médicas
+        </small>
+    </footer>
+
+    <!-- SCRIPT PARA MOSTRAR DÍAS EN ESPAÑOL -->
+    <script>
+
+        const medicoSelect = document.getElementById("idMedico");
+        const horarioSelect = document.getElementById("idHorario");
+
+        const fechaInput = document.getElementById("fecha");
+        const horaInicioInput = document.getElementById("horaInicio");
+        const horaFinInput = document.getElementById("horaFin");
+
+        const formulario = document.getElementById("formularioCita");
+
+        // TRADUCCIÓN DE LOS DÍAS
+        const diasEspanol = {
+            MONDAY: "Lunes",
+            TUESDAY: "Martes",
+            WEDNESDAY: "Miércoles",
+            THURSDAY: "Jueves",
+            FRIDAY: "Viernes",
+            SATURDAY: "Sábado",
+            SUNDAY: "Domingo"
+        };
+
+        // COPIAR LOS HORARIOS QUE ENVÍA THYMELEAF
+        const horariosOriginales = Array.from(
+            horarioSelect.querySelectorAll("option[data-medico]")
+        ).map(option => ({
+            id: option.value,
+            medico: option.dataset.medico,
+            dia: option.dataset.dia,
+            inicio: option.dataset.inicio,
+            fin: option.dataset.fin
+        }));
+
+        // MOSTRAR SOLO HORARIOS DEL MÉDICO SELECCIONADO
+        function actualizarHorarios() {
+
+            const idMedico = medicoSelect.value;
+
+            horarioSelect.innerHTML =
+                '<option value="">Seleccione un horario</option>';
+
+            horariosOriginales.forEach(horario => {
+
+                if (horario.medico === idMedico) {
+
+                    const opcion = document.createElement("option");
+
+                    opcion.value = horario.id;
+
+                    opcion.dataset.dia = horario.dia;
+                    opcion.dataset.inicio = horario.inicio;
+                    opcion.dataset.fin = horario.fin;
+
+                    const diaTraducido =
+                        diasEspanol[horario.dia] || horario.dia;
+
+                    opcion.textContent =
+                        diaTraducido + " - " +
+                        horario.inicio + " a " +
+                        horario.fin;
+
+                    horarioSelect.appendChild(opcion);
+                }
+
+            });
+
+            horaInicioInput.value = "";
+            horaFinInput.value = "";
+        }
+
+        medicoSelect.addEventListener("change", actualizarHorarios);
+
+        // COMPLETAR HORAS AL SELECCIONAR UN HORARIO
+        horarioSelect.addEventListener("change", function () {
+
+            const opcion = horarioSelect.selectedOptions[0];
+
+            if (opcion && opcion.dataset.inicio && opcion.dataset.fin) {
+
+                horaInicioInput.value = opcion.dataset.inicio.substring(0, 5);
+                horaFinInput.value = opcion.dataset.fin.substring(0, 5);
+
+            } else {
+
+                horaInicioInput.value = "";
+                horaFinInput.value = "";
+            }
+
+        });
+
+        // FECHA MÍNIMA: HOY
+        function obtenerFechaLocal() {
+
+            const hoy = new Date();
+
+            const anio = hoy.getFullYear();
+
+            const mes = String(
+                hoy.getMonth() + 1
+            ).padStart(2, "0");
+
+            const dia = String(
+                hoy.getDate()
+            ).padStart(2, "0");
+
+            return `${anio}-${mes}-${dia}`;
+        }
+
+        fechaInput.min = obtenerFechaLocal();
+
+        // VALIDACIÓN ANTES DE GUARDAR
+        formulario.addEventListener("submit", function (event) {
+
+            const opcion = horarioSelect.selectedOptions[0];
+
+            if (!opcion || !opcion.dataset.dia) {
+                event.preventDefault();
+                alert("Selecciona un horario de atención válido.");
+                return;
+            }
+
+            const fechaSeleccionada = fechaInput.value;
+
+            if (!fechaSeleccionada) {
+                event.preventDefault();
+                alert("Selecciona una fecha.");
+                return;
+            }
+
+            // Interpretar la fecha localmente
+            const partes = fechaSeleccionada.split("-");
+
+            const fecha = new Date(
+                Number(partes[0]),
+                Number(partes[1]) - 1,
+                Number(partes[2])
+            );
+
+            const diasJavaScript = [
+                "SUNDAY",
+                "MONDAY",
+                "TUESDAY",
+                "WEDNESDAY",
+                "THURSDAY",
+                "FRIDAY",
+                "SATURDAY"
+            ];
+
+            const diaFecha = diasJavaScript[fecha.getDay()];
+
+            // VALIDAR DÍA
+            if (diaFecha !== opcion.dataset.dia) {
+
+                event.preventDefault();
+
+                const diaCorrecto =
+                    diasEspanol[opcion.dataset.dia] || opcion.dataset.dia;
+
+                alert(
+                    "La fecha seleccionada no corresponde al horario " +
+                    "del médico. Debes elegir un día " + diaCorrecto + "."
+                );
+
+                fechaInput.focus();
+                return;
+            }
+
+            // VALIDAR ORDEN DE HORAS
+            if (horaInicioInput.value >= horaFinInput.value) {
+
+                event.preventDefault();
+
+                alert(
+                    "La hora de fin debe ser posterior a la hora de inicio."
+                );
+
+                return;
+            }
+
+            // VALIDAR RANGO DE HORARIO
+            const inicioPermitido = opcion.dataset.inicio.substring(0, 5);
+            const finPermitido = opcion.dataset.fin.substring(0, 5);
+
+            if (
+                horaInicioInput.value < inicioPermitido ||
+                horaFinInput.value > finPermitido
+            ) {
+
+                event.preventDefault();
+
+                alert(
+                    "La cita debe estar dentro del horario de atención: " +
+                    inicioPermitido + " a " + finPermitido
+                );
+
+                return;
+            }
+
+        });
+
+        // INICIALIZAR
+        actualizarHorarios();
+
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
+    </script>
+
+</body>
+</html>
