@@ -24,7 +24,7 @@ public class Paciente {
 	private Long idPaciente;
 
 	@OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_usuario", nullable = false)
+    @JoinColumn(name = "id_usuario", nullable = false, unique = true)
     private Usuario usuario;
 
 	@Column(name = "numero_historia", length = 20)

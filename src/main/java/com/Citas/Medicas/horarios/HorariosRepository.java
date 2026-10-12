@@ -1,14 +1,26 @@
 package com.Citas.Medicas.Horarios;
-
 import java.time.LocalTime;
+
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+
 public interface HorariosRepository
         extends JpaRepository<Horarios, Long> {
+
+	// JPQL para buscar horarios activos de un médico según la especialidad
+
+    @Query("SELECT h FROM Horarios h WHERE h.medico.especialidad.idEspecialidad = :idEspecialidad AND h.estado = true AND h.medico.estado = true")
+    List<Horarios> findByEspecialidadId(@Param("idEspecialidad") Long idEspecialidad);
+
+    // JPQL para buscar horarios por especialidad y un día de semana específico
+
+    @Query("SELECT h FROM Horarios h WHERE h.medico.especialidad.idEspecialidad = :idEspecialidad AND h.diaSemana = :diaSemana AND h.estado = true")
+    List<Horarios> findByEspecialidadAndDia(@Param("idEspecialidad") Long idEspecialidad, @Param("diaSemana") String diaSemana);
+
 
     @Query("""
         SELECT h FROM Horarios h
@@ -17,6 +29,15 @@ public interface HorariosRepository
         ORDER BY h.diaSemana, h.horaInicio
     """)
     List<Horarios> listarHorarios();
+
+    @Query("""
+        SELECT h FROM Horarios h
+        JOIN FETCH h.medico m
+        JOIN FETCH m.usuario
+        WHERE h.estado = true AND m.estado = true
+        ORDER BY h.diaSemana, h.horaInicio
+    """)
+    List<Horarios> listarHorariosActivos();
 
     @Query("""
         SELECT h FROM Horarios h

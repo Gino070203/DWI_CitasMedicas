@@ -110,7 +110,9 @@
                 </h2>
 
                 <p class="text-muted mb-0">
-                    Administra los días y horarios de atención de los médicos.
+                    Administra los bloques semanales. El sistema genera turnos de
+                    <strong th:text="|${duracionConsultaMinutos} minutos|">30 minutos</strong>
+                    para ambas vistas.
                 </p>
             </div>
 
@@ -124,7 +126,7 @@
                 <a th:href="@{/admin/horarios/nuevo}"
                    class="btn btn-primary">
                     <i class="bi bi-plus-circle me-1"></i>
-                    Nuevo horario
+                    Nuevo bloque
                 </a>
             </div>
         </div>
@@ -158,7 +160,7 @@
             <div class="col-md-6">
                 <div class="card shadow-sm">
                     <div class="card-body p-4">
-                        <h6 class="text-muted">Horarios registrados</h6>
+                        <h6 class="text-muted">Bloques semanales registrados</h6>
 
                         <h2 class="titulo mb-0"
                             th:text="${horarios != null ? #lists.size(horarios) : 0}">
@@ -166,7 +168,7 @@
                         </h2>
 
                         <small class="text-muted">
-                            Total de horarios del centro médico
+                            Turnos generados cada <span th:text="${duracionConsultaMinutos}">30</span> minutos
                         </small>
                     </div>
                 </div>
@@ -179,7 +181,7 @@
 
                         <h5 class="titulo mb-1">
                             <i class="bi bi-calendar-week me-2"></i>
-                            Horarios médicos
+                            Bloques de disponibilidad
                         </h5>
 
                         <small class="text-muted">
@@ -197,7 +199,7 @@
 
                 <h5 class="fw-bold mb-3">
                     <i class="bi bi-list-ul me-2"></i>
-                    Listado de horarios
+                    Listado de bloques semanales
                 </h5>
 
                 <div class="table-responsive">
@@ -208,8 +210,9 @@
                                 <th>ID</th>
                                 <th>Médico</th>
                                 <th>Día</th>
-                                <th>Hora de inicio</th>
-                                <th>Hora de fin</th>
+                                <th>Inicio del bloque</th>
+                                <th>Fin del bloque</th>
+                                <th>Turnos posibles</th>
                                 <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
@@ -239,6 +242,17 @@
                                 <td th:text="${h.horaInicio}"></td>
 
                                 <td th:text="${h.horaFin}"></td>
+
+                                <td>
+                                    <span th:if="${turnosPorBloque[h.idHorario] > 0}"
+                                          class="badge bg-success"
+                                          th:text="${turnosPorBloque[h.idHorario]}">0</span>
+                                    <span th:unless="${turnosPorBloque[h.idHorario] > 0}"
+                                          class="badge bg-danger"
+                                          th:title="|El bloque debe durar al menos ${duracionConsultaMinutos} minutos|">
+                                        Sin turnos
+                                    </span>
+                                </td>
 
                                 <td>
                                     <span class="badge"
@@ -273,7 +287,7 @@
 
                             <!-- TABLA VACÍA -->
                             <tr th:if="${horarios == null or #lists.isEmpty(horarios)}">
-                                <td colspan="7"
+                                <td colspan="8"
                                     class="text-center text-muted py-4">
 
                                     <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>

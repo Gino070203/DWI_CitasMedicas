@@ -1,0 +1,3 @@
+# Configuración global del centro. Puede sobrescribirse en el entorno de despliegue.
+agenda:
+  duracion-consulta-minutos: ${AGENDA_DURACION_CONSULTA_MINUTOS:30}

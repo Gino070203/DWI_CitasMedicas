@@ -1,8 +1,10 @@
 package com.Citas.Medicas.Horarios;
 
 import java.time.LocalTime;
+import java.time.Duration;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +16,33 @@ public class HorariosService {
 
     private final HorariosRepository horarios;
     private final MedicoRepository medicos;
+    private final int duracionConsultaMinutos;
 
     public HorariosService(HorariosRepository horarios,
-                           MedicoRepository medicos) {
+                           MedicoRepository medicos,
+                           @Value("${agenda.duracion-consulta-minutos:30}") int duracionConsultaMinutos) {
         this.horarios = horarios;
         this.medicos = medicos;
+        if (duracionConsultaMinutos <= 0) {
+            throw new IllegalArgumentException(
+                    "La duración de consulta debe ser mayor que cero.");
+        }
+        this.duracionConsultaMinutos = duracionConsultaMinutos;
+    }
+
+    public int getDuracionConsultaMinutos() {
+        return duracionConsultaMinutos;
+    }
+
+    public int contarTurnosPosibles(Horarios horario) {
+        if (horario == null || horario.getHoraInicio() == null
+                || horario.getHoraFin() == null
+                || !horario.getHoraInicio().isBefore(horario.getHoraFin())) {
+            return 0;
+        }
+        long minutos = Duration.between(
+                horario.getHoraInicio(), horario.getHoraFin()).toMinutes();
+        return (int) (minutos / duracionConsultaMinutos);
     }
 
     @Transactional(readOnly = true)
@@ -47,6 +71,13 @@ public class HorariosService {
         if (inicio == null || fin == null ||
                 !inicio.isBefore(fin)) {
             throw new IllegalArgumentException("Horas inválidas");
+        }
+
+        long duracionBloque = Duration.between(inicio, fin).toMinutes();
+        if (duracionBloque < duracionConsultaMinutos) {
+            throw new IllegalArgumentException(
+                    "El bloque debe durar al menos "
+                            + duracionConsultaMinutos + " minutos para admitir una cita.");
         }
 
         Medico medico = medicos.bloquearMedico(idMedico)

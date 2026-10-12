@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(titulo)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${titulo}">Portal del paciente</title>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400..800&display=swap"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+          rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
+          rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/paciente.css}">
+</head>
+
+<body>
+<nav th:fragment="navegacion(paginaActiva)"
+     class="navbar navbar-expand-lg navbar-dark patient-navbar"
+     data-bs-theme="dark"
+     aria-label="Navegación del paciente">
+    <div class="container">
+        <a class="navbar-brand" th:href="@{/paciente/dashboard}">
+            <i class="bi bi-heart-pulse-fill me-2" aria-hidden="true"></i>
+            Centro Médico Buenos Aires - Chorrillos
+        </a>
+
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navegacionPaciente"
+                aria-controls="navegacionPaciente" aria-expanded="false"
+                aria-label="Mostrar u ocultar navegación">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navegacionPaciente">
+            <ul class="navbar-nav ms-auto align-items-lg-center">
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/paciente/dashboard}"
+                       th:classappend="${paginaActiva == 'inicio'} ? ' active' : ''"
+                       th:attr="aria-current=${paginaActiva == 'inicio'} ? 'page' : null">
+                        <i class="bi bi-house-door me-1" aria-hidden="true"></i>Inicio
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/paciente/reservar}"
+                       th:classappend="${paginaActiva == 'reservar'} ? ' active' : ''"
+                       th:attr="aria-current=${paginaActiva == 'reservar'} ? 'page' : null">
+                        <i class="bi bi-calendar-plus me-1" aria-hidden="true"></i>Reservar cita
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link"
+                       th:href="@{/paciente/citas}"
+                       th:classappend="${paginaActiva == 'historial'} ? ' active' : ''"
+                       th:attr="aria-current=${paginaActiva == 'historial'} ? 'page' : null">
+                        <i class="bi bi-clipboard2-heart me-1" aria-hidden="true"></i>Mis citas
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    <a class="patient-user-chip patient-user-link"
+                       th:href="@{/paciente/perfil}"
+                       th:classappend="${paginaActiva == 'perfil'} ? ' patient-user-chip-active' : ''"
+                       th:attr="aria-current=${paginaActiva == 'perfil'} ? 'page' : null"
+                       title="Ver y editar mi perfil">
+                        <i class="bi bi-person-circle" aria-hidden="true"></i>
+                        <span th:text="${nombrePaciente}">Paciente</span>
+                        <i class="bi bi-pencil-square patient-user-edit-icon" aria-hidden="true"></i>
+                    </a>
+                </li>
+                <li class="nav-item ms-lg-2">
+                    <form th:action="@{/logout}" method="post">
+                        <button class="btn btn-sm btn-outline-light" type="submit">
+                            <i class="bi bi-box-arrow-right me-1" aria-hidden="true"></i>
+                            Cerrar sesión
+                        </button>
+                    </form>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<th:block th:fragment="scripts">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</th:block>
+
+<th:block th:fragment="scriptsReserva">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/es.js"></script>
+    <script th:src="@{/js/reserva-disponibilidad.js}"></script>
+</th:block>
+</body>
+</html>
