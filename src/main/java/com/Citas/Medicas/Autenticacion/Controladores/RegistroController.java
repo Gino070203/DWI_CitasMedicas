@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import com.Citas.Medicas.Autenticacion.Servicios.CorreoService;
+import com.Citas.Medicas.Autenticacion.Servicios.VerificacionRegistroService;
 import com.Citas.Medicas.Roles.Rol;
 import com.Citas.Medicas.Roles.RolRepository;
 import com.Citas.Medicas.Usuario.Usuario;
@@ -31,6 +32,9 @@ public class RegistroController {
 
     @Autowired
     private CorreoService correoService;
+
+    @Autowired
+    private VerificacionRegistroService verificacionRegistroService;
     
     
     // 1. Mostrar la vista de registro
@@ -92,14 +96,7 @@ public class RegistroController {
     public String verificarCodigo(@RequestParam("correo") String correo, 
                                   @RequestParam("codigo") String codigoIngresado, 
                                   Model model) {
-        Usuario usuario = usuarioRepository.findByCorreo(correo).orElse(null);
-
-        if (usuario != null && usuario.getCodigoVerificacion() != null && usuario.getCodigoVerificacion().equals(codigoIngresado)) {
-            // Código correcto: activamos la cuenta y limpiamos el código temporal
-            usuario.setEstado(true);
-            usuario.setCodigoVerificacion(null);
-            usuarioRepository.save(usuario);
-
+        if (verificacionRegistroService.verificarCodigo(correo, codigoIngresado)) {
             return "redirect:/login?verificado=true";
         } else {
             // Código incorrecto
