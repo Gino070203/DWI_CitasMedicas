@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import com.Citas.Medicas.Horarios.HorariosService;
+import com.Citas.Medicas.horarios.HorariosService;
 
 @SpringBootTest(properties = "agenda.duracion-consulta-minutos=17")
 class DuracionCitasConfigTest {

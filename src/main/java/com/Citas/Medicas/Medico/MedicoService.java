@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.Citas.Medicas.Especialidad.Especialidad;
 import com.Citas.Medicas.Especialidad.EspecialidadRepository;
-import com.Citas.Medicas.Paciente.PacienteRepository;
 import com.Citas.Medicas.Usuario.Usuario;
 import com.Citas.Medicas.Usuario.UsuarioRepository;
 
@@ -16,17 +15,13 @@ public class MedicoService {
 
     private final MedicoRepository medicos;
     private final UsuarioRepository usuarios;
-    private final PacienteRepository pacientes;
     private final EspecialidadRepository especialidades;
 
-    public MedicoService(
-            MedicoRepository medicos,
-            UsuarioRepository usuarios,
-            PacienteRepository pacientes,
-            EspecialidadRepository especialidades) {
+    public MedicoService(MedicoRepository medicos,
+                         UsuarioRepository usuarios,
+                         EspecialidadRepository especialidades) {
         this.medicos = medicos;
         this.usuarios = usuarios;
-        this.pacientes = pacientes;
         this.especialidades = especialidades;
     }
 
@@ -37,87 +32,63 @@ public class MedicoService {
 
     @Transactional(readOnly = true)
     public Medico obtener(Long id) {
-        return medicos.findById(id)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Médico no encontrado"));
+        return medicos.buscarPorId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado"));
     }
 
     @Transactional
-    public Medico registrar(Long idUsuario,
-                            Long idEspecialidad,
-                            String cmp) {
-
+    public Medico registrar(Long idUsuario, Long idEspecialidad, String cmp) {
         Usuario usuario = usuarios.bloquearUsuario(idUsuario)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Usuario no encontrado"));
+                .orElseThrow(() -> new IllegalArgumentException("Usuario no encontrado"));
 
-        if (usuario.getRol() == null ||
-            !"MEDICO".equalsIgnoreCase(
-                usuario.getRol().getNombre())) {
-            throw new IllegalArgumentException(
-                "El usuario no tiene rol MEDICO");
-        }
+        if (usuario.getRol() == null || !"MEDICO".equals(usuario.getRol().getNombre()))
+            throw new IllegalArgumentException("El usuario no tiene rol MEDICO");
+        if (medicos.existePorUsuario(idUsuario))
+            throw new IllegalArgumentException("Ese usuario ya tiene perfil de médico");
 
-        if (medicos.existePorUsuario(idUsuario)
-                || pacientes.existePorUsuario(idUsuario)) {
-            throw new IllegalArgumentException(
-                "El usuario ya tiene un perfil");
-        }
+        String cmpLimpio = cmp == null ? "" : cmp.trim();
+        if (cmpLimpio.isEmpty())
+            throw new IllegalArgumentException("El CMP es obligatorio");
+        if (medicos.existePorCmp(cmpLimpio))
+            throw new IllegalArgumentException("El CMP ya está registrado");
 
-        Especialidad especialidad = obtenerEspecialidad(idEspecialidad);
-        validarCmp(cmp, null);
+        Especialidad esp = obtenerEspecialidadActiva(idEspecialidad);
 
         Medico medico = new Medico();
         medico.setUsuario(usuario);
-        medico.setEspecialidad(especialidad);
-        medico.setCmp(cmp.trim());
+        medico.setCmp(cmpLimpio);
+        medico.setEspecialidad(esp);
         medico.setEstado(true);
-
         return medicos.save(medico);
     }
 
     @Transactional
-    public Medico actualizar(Long id, Long idEspecialidad,
-                             String cmp) {
-        Medico medico = obtener(id);
+    public Medico actualizar(Long idMedico, Long idEspecialidad, String cmp) {
+        Medico medico = obtener(idMedico);
 
-        validarCmp(cmp, id);
+        String cmpLimpio = cmp == null ? "" : cmp.trim();
+        if (cmpLimpio.isEmpty())
+            throw new IllegalArgumentException("El CMP es obligatorio");
+        if (medicos.existePorCmpExcluyendo(cmpLimpio, idMedico))
+            throw new IllegalArgumentException("El CMP ya pertenece a otro médico");
 
-        medico.setCmp(cmp.trim());
-        medico.setEspecialidad(obtenerEspecialidad(idEspecialidad));
-
-        return medicos.save(medico);
+        medico.setCmp(cmpLimpio);
+        medico.setEspecialidad(obtenerEspecialidadActiva(idEspecialidad));
+        return medico;
     }
 
-    private Especialidad obtenerEspecialidad(Long id) {
-        Especialidad e = especialidades.findById(id)
-            .orElseThrow(() ->
-                new IllegalArgumentException("Especialidad no encontrada"));
-
-        if (!Boolean.TRUE.equals(e.getEstado())) {
-            throw new IllegalArgumentException(
-                "La especialidad está inactiva");
-        }
-        return e;
-    }
-
-    private void validarCmp(String cmp, Long idActual) {
-        if (cmp == null || cmp.isBlank() || cmp.trim().length() > 20) {
-            throw new IllegalArgumentException("CMP inválido");
-        }
-
-        medicos.buscarPorCmp(cmp.trim()).ifPresent(m -> {
-            if (idActual == null || !m.getIdMedico().equals(idActual)) {
-                throw new IllegalArgumentException(
-                    "El CMP ya está registrado");
-            }
-        });
-    }
-
+    // Alterna activo/inactivo (desactivación lógica)
     @Transactional
-    public void cambiarEstado(Long id) {
-        Medico medico = obtener(id);
+    public void cambiarEstado(Long idMedico) {
+        Medico medico = obtener(idMedico);
         medico.setEstado(!Boolean.TRUE.equals(medico.getEstado()));
-        medicos.save(medico);
+    }
+
+    private Especialidad obtenerEspecialidadActiva(Long id) {
+        Especialidad esp = especialidades.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Especialidad no encontrada"));
+        if (!Boolean.TRUE.equals(esp.getEstado()))
+            throw new IllegalArgumentException("La especialidad está inactiva");
+        return esp;
     }
 }

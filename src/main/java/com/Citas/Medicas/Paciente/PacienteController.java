@@ -27,7 +27,7 @@ import com.Citas.Medicas.Cita.CitasService;
 import com.Citas.Medicas.Cita.TurnoCitaRespuesta;
 import com.Citas.Medicas.Especialidad.Especialidad;
 import com.Citas.Medicas.Especialidad.EspecialidadRepository;
-import com.Citas.Medicas.Horarios.Horarios;
+import com.Citas.Medicas.horarios.Horarios;
 import com.Citas.Medicas.Usuario.Usuario;
 import com.Citas.Medicas.Usuario.UsuarioActualService;
 

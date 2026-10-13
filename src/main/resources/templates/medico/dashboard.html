@@ -1,12 +1,109 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Panel del Médico | Centro Médico Buenos Aires de Villa</title>
+    <link rel="stylesheet" th:href="@{/css/medico.css}">
 </head>
 <body>
 
-	<h1>Dashboard medico</h1>
+<div class="topbar">
+    <h1>Centro Médico Buenos Aires de Villa</h1>
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Cerrar sesión</button>
+    </form>
+</div>
+
+<div class="contenedor">
+
+    <h2 class="titulo">Panel del Médico</h2>
+    <p class="subtitulo" th:if="${medico}"
+       th:text="${'Dr(a). ' + medico.usuario.nombre + ' ' + medico.usuario.apellido + ' · ' + medico.especialidad.nombre + ' · CMP ' + medico.cmp}"></p>
+
+    <div class="aviso ok" th:if="${mensaje}" th:text="${mensaje}"></div>
+    <div class="aviso err" th:if="${error}" th:text="${error}"></div>
+
+    <div th:if="${medico}">
+
+        <div class="resumen">
+            <div class="tarjeta">
+                <div class="etiqueta">Citas de hoy</div>
+                <div class="numero" th:text="${#lists.size(hoy)}">0</div>
+                <div class="detalle">Pacientes agendados para hoy</div>
+            </div>
+            <div class="tarjeta">
+                <div class="etiqueta">Por atender</div>
+                <div class="numero" th:text="${#lists.size(porAtender)}">0</div>
+                <div class="detalle">Citas pendientes desde hoy</div>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <h2>Agenda de hoy</h2>
+            <div class="tarjeta tabla-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Hora</th><th>Paciente</th><th>DNI</th><th>Estado</th><th>Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${hoy}">
+                        <td th:text="${c.horaInicio + ' - ' + c.horaFin}"></td>
+                        <td th:text="${c.paciente.usuario.nombre + ' ' + c.paciente.usuario.apellido}"></td>
+                        <td th:text="${c.paciente.usuario.dni}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${c.estado == 'CONFIRMADA'} ? 'confirmada' : (${c.estado == 'PENDIENTE'} ? 'pendiente' : 'otra')"
+                                  th:text="${c.estado}"></span>
+                        </td>
+                        <td>
+                            <a class="btn" th:href="@{/medico/citas/{id}/diagnostico(id=${c.idCita})}">Atender</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(hoy)}">
+                        <td colspan="5" class="vacio">No tienes citas programadas para hoy.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="seccion">
+            <h2>Pacientes por atender</h2>
+            <div class="tarjeta tabla-wrap">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Fecha</th><th>Hora</th><th>Paciente</th><th>Estado</th><th>Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="c : ${porAtender}">
+                        <td th:text="${#temporals.format(c.fecha, 'dd/MM/yyyy')}"></td>
+                        <td th:text="${c.horaInicio}"></td>
+                        <td th:text="${c.paciente.usuario.nombre + ' ' + c.paciente.usuario.apellido}"></td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="${c.estado == 'CONFIRMADA'} ? 'confirmada' : (${c.estado == 'PENDIENTE'} ? 'pendiente' : 'otra')"
+                                  th:text="${c.estado}"></span>
+                        </td>
+                        <td>
+                            <a class="btn" th:href="@{/medico/citas/{id}/diagnostico(id=${c.idCita})}">Atender</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(porAtender)}">
+                        <td colspan="5" class="vacio">No hay pacientes pendientes.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="pie">© 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas</div>
+</div>
 
 </body>
 </html>

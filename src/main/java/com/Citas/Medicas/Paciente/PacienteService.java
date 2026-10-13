@@ -17,8 +17,8 @@ import com.Citas.Medicas.Usuario.UsuarioRepository;
 import com.Citas.Medicas.Cita.Citas;
 import com.Citas.Medicas.Cita.CitasService;
 import com.Citas.Medicas.Cita.CitasRepository;
-import com.Citas.Medicas.Horarios.Horarios;
-import com.Citas.Medicas.Horarios.HorariosRepository;
+import com.Citas.Medicas.horarios.Horarios;
+import com.Citas.Medicas.horarios.HorariosRepository;
 
 @Service
 public class PacienteService {

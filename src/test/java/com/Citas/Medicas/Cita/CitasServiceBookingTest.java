@@ -20,8 +20,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
-import com.Citas.Medicas.Horarios.Horarios;
-import com.Citas.Medicas.Horarios.HorariosRepository;
+import com.Citas.Medicas.horarios.Horarios;
+import com.Citas.Medicas.horarios.HorariosRepository;
 import com.Citas.Medicas.Medico.Medico;
 import com.Citas.Medicas.Medico.MedicoRepository;
 import com.Citas.Medicas.Paciente.Paciente;
