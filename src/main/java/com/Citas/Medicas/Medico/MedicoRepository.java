@@ -26,6 +26,25 @@ public interface MedicoRepository extends JpaRepository<Medico, Long> {
     List<Medico> listarMedicosActivos();
 
     @Query("""
+        SELECT m FROM Medico m
+        JOIN FETCH m.usuario u
+        JOIN FETCH m.especialidad e
+        WHERE (:texto IS NULL
+               OR LOWER(COALESCE(u.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.apellido, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.correo, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.dni, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(m.cmp, '')) LIKE CONCAT('%', LOWER(:texto), '%'))
+          AND (:idEspecialidad IS NULL OR e.idEspecialidad = :idEspecialidad)
+          AND (:estado IS NULL OR m.estado = :estado)
+        ORDER BY u.apellido, u.nombre
+    """)
+    List<Medico> filtrarMedicos(
+            @Param("texto") String texto,
+            @Param("idEspecialidad") Long idEspecialidad,
+            @Param("estado") Boolean estado);
+
+    @Query("""
         SELECT m FROM Medico m JOIN FETCH m.usuario JOIN FETCH m.especialidad
         WHERE m.idMedico = :id
     """)

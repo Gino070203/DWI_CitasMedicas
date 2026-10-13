@@ -30,8 +30,14 @@ public class Paciente {
 	@Column(name = "numero_historia", length = 20)
 	private String numeroHistoria;
 
+	@Column(name = "numero_historia_verificado")
+	private Boolean numeroHistoriaVerificado;
+
 	@Column(length = 20)
 	private String sis;
+
+	@Column(name = "sis_verificado")
+	private Boolean sisVerificado;
 
 	@Column(name = "fecha_nacimiento")
 	private LocalDate fechaNacimiento;
@@ -72,12 +78,28 @@ public class Paciente {
 		this.numeroHistoria = numeroHistoria;
 	}
 
+	public Boolean getNumeroHistoriaVerificado() {
+		return numeroHistoriaVerificado;
+	}
+
+	public void setNumeroHistoriaVerificado(Boolean numeroHistoriaVerificado) {
+		this.numeroHistoriaVerificado = numeroHistoriaVerificado;
+	}
+
 	public String getSis() {
 		return sis;
 	}
 
 	public void setSis(String sis) {
 		this.sis = sis;
+	}
+
+	public Boolean getSisVerificado() {
+		return sisVerificado;
+	}
+
+	public void setSisVerificado(Boolean sisVerificado) {
+		this.sisVerificado = sisVerificado;
 	}
 
 	public LocalDate getFechaNacimiento() {

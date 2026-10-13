@@ -44,6 +44,11 @@ public class UsuarioAdminService {
     }
 
     @Transactional(readOnly = true)
+    public List<Usuario> filtrar(String texto, String rol, Boolean estado) {
+        return usuarios.filtrarUsuarios(limpiarFiltro(texto), limpiarFiltro(rol), estado);
+    }
+
+    @Transactional(readOnly = true)
     public Usuario obtener(Long id) {
         return usuarios.findById(id).orElseThrow(() ->
             new IllegalArgumentException("Usuario no encontrado"));
@@ -151,5 +156,9 @@ public class UsuarioAdminService {
 
         u.setEstado(!Boolean.TRUE.equals(u.getEstado()));
         usuarios.save(u);
+    }
+
+    private static String limpiarFiltro(String valor) {
+        return valor == null || valor.isBlank() ? null : valor.trim();
     }
 }

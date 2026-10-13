@@ -20,6 +20,12 @@ public class EspecialidadService {
     }
 
     @Transactional(readOnly = true)
+    public List<Especialidad> filtrar(String texto, Boolean estado) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        return repository.filtrarEspecialidades(criterio, estado);
+    }
+
+    @Transactional(readOnly = true)
     public List<Especialidad> activas() {
         return repository.listarActivas();
     }

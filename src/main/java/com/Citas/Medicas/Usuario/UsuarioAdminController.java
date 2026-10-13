@@ -20,8 +20,14 @@ public class UsuarioAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("usuarios", service.listar());
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String rol,
+                         @RequestParam(required = false) Boolean estado,
+                         Model model) {
+        model.addAttribute("usuarios", service.filtrar(q, rol, estado));
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("rolFiltro", rol);
+        model.addAttribute("estadoFiltro", estado);
         return "admin/usuarios/lista";
     }
 

@@ -1,394 +1,657 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Gestión de Pagos | Citas Médicas</title>
 
     <!-- Bootstrap -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background-color: #f3f6fb;
-            font-family: Arial, sans-serif;
+        :root {
+            --sidebar-width: 260px;
+            --primary-dark: #0b1f36;
+            --primary-blue: #123b70;
+            --accent-blue: #1767b2;
+            --bg-body: #f8fafc;
         }
 
-        .navbar {
-            background: linear-gradient(90deg, #123b70, #1767b2);
+        body {
+            background-color: var(--bg-body);
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            z-index: 1030;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            display: block;
+            font-weight: normal;
+        }
+
+        .sidebar-action-btn {
+            padding: 15px 20px;
+        }
+
+        .sidebar-action-btn .btn-nueva-cita {
+            background-color: #1767b2;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px;
+            transition: background 0.2s;
+        }
+
+        .sidebar-action-btn .btn-nueva-cita:hover {
+            background-color: #1f7ac9;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 10px;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
+            background-color: #123b70;
+            color: #ffffff;
+        }
+
+        .sidebar-menu li a i {
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .user-profile-mini {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+
+        .user-info h6 {
+            font-size: 13px;
+            margin: 0;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .user-info small {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .btn-logout-sidebar {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 0;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-logout-sidebar:hover {
+            color: #fff;
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- TOPBAR --- */
+        .topbar {
+            background-color: #ffffff;
+            height: 70px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .topbar-search {
+            position: relative;
+            width: 380px;
+        }
+
+        .topbar-search input {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 15px 8px 38px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .topbar-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .topbar-date {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-icon-btn {
+            background: none;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            height: 35px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #64748b;
+            background-color: #f8fafc;
+            cursor: pointer;
+        }
+
+        /* --- ENCABEZADO DE SECCIÓN --- */
+        .page-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .titulo {
-            color: #163e70;
+            color: #0f172a;
             font-weight: bold;
+            font-size: 22px;
         }
 
-        .card {
-            border: none;
-            border-radius: 14px;
+        /* --- TARJETAS ESTADÍSTICAS --- */
+        .card-stat {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            padding: 18px;
+            height: 100%;
+            transition: box-shadow 0.2s;
+        }
+
+        .card-stat:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .card-stat-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
         .resumen-pagos {
-            background: linear-gradient(110deg, #123b70, #1767b2);
+            background: linear-gradient(135deg, #0b2545 0%, #134074 100%);
             color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 18px;
+            height: 100%;
         }
 
         .resumen-pagos h2 {
             font-weight: bold;
-            font-size: 34px;
-        }
-
-        .icono-resumen {
-            width: 60px;
-            height: 60px;
-            border-radius: 14px;
-            background-color: rgba(255,255,255,0.2);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             font-size: 28px;
         }
 
+        .icono-resumen {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.15);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 16px;
+        }
+
+        /* --- FILTROS DE TABLA --- */
+        .filter-bar {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar .form-control, .filter-bar .form-select {
+            font-size: 13px;
+            border-color: #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        /* --- TABLA --- */
         .table thead th {
-            background-color: #163e70;
-            color: white;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 14px;
             white-space: nowrap;
         }
 
         .table td {
             vertical-align: middle;
+            padding: 14px;
+            font-size: 13px;
         }
 
         .badge-pagado {
             background-color: #dcfce7;
             color: #166534;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .badge-pendiente {
             background-color: #fef3c7;
             color: #92400e;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .badge-cancelado {
             background-color: #fee2e2;
             color: #991b1b;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .monto {
             font-weight: bold;
             color: #15803d;
         }
+
+        .btn-primary {
+            background: #1767b2;
+            border-color: #1767b2;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .btn-primary:hover {
+            background: #123b70;
+            border-color: #123b70;
+        }
+
+        /* Footer General */
+        .footer-main {
+            margin-top: auto;
+            padding: 20px 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- BARRA SUPERIOR -->
-    <nav class="navbar navbar-dark shadow-sm">
+    <!-- SIDEBAR / MENÚ LATERAL IZQUIERDO -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <div>
+                CM Buenos Aires
+                <span>Gestión Clínica</span>
+            </div>
+        </a>
 
-        <div class="container-fluid px-4">
+        
 
-            <a class="navbar-brand fw-bold"
-               th:href="@{/admin/dashboard}">
+        <!-- Opciones de Navegación -->
+        <ul class="sidebar-menu">
+            <li>
+                <a th:href="@{/admin/dashboard}"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/citas}"><i class="bi bi-calendar-event"></i> Citas</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/medicos}"><i class="bi bi-person-badge"></i> Médicos</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/pacientes}"><i class="bi bi-people"></i> Pacientes</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/especialidades}"><i class="bi bi-clipboard2-pulse"></i> Especialidades</a>
+            </li>
+            <li class="active">
+                <a th:href="@{/admin/pagos}"><i class="bi bi-wallet2"></i> Pagos</a>
+            </li>
+            
+        </ul>
 
-                <i class="bi bi-hospital me-2"></i>
-
-                Centro Médico Buenos Aires de Villa
-
-            </a>
-
-            <form th:action="@{/logout}" method="post">
-
-                <button type="submit"
-                        class="btn btn-outline-light btn-sm">
-
-                    <i class="bi bi-box-arrow-right me-1"></i>
-                    Cerrar sesión
-
+        <!-- Perfil y Cierre de Sesión en el Sidebar Inferior -->
+        <div class="sidebar-footer">
+            
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn-logout-sidebar">
+                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
                 </button>
+            </form>
+        </div>
+    </aside>
 
+
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="main-content">
+
+        
+
+
+        <!-- CUERPO DE LA VISTA -->
+        <main class="container-fluid px-4 py-4">
+
+            <!-- SUBTÍTULO SUPERIOR Y TÍTULO -->
+            <div class="page-header-box">
+                
+
+                <div class="d-flex gap-2">
+                    
+
+                    <a th:href="@{/admin/pagos/nuevo}" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                        <i class="bi bi-plus-circle"></i> Registrar Pago
+                    </a>
+                </div>
+            </div>
+
+            <!-- MENSAJES -->
+            <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- TARJETAS ESTADÍSTICAS SUPERIORES -->
+            
+
+            <!-- BARRA DE FILTROS SUPERIOR DE LA TABLA -->
+            <form class="filter-bar" method="get" th:action="@{/admin/pagos}">
+                <div class="flex-grow-1">
+                    <input type="search" name="q" class="form-control"
+                           th:value="${textoFiltro}"
+                           placeholder="🔍 ID de pago/cita, paciente o DNI...">
+                </div>
+                <div style="width: 210px;">
+                    <select name="metodo" class="form-select">
+                        <option value="" th:selected="${metodoFiltro == null}">Todos los métodos</option>
+                        <option value="EFECTIVO" th:selected="${metodoFiltro == 'EFECTIVO'}">Efectivo</option>
+                        <option value="PRESENCIAL" th:selected="${metodoFiltro == 'PRESENCIAL'}">Presencial</option>
+                        <option value="SIS (Seguro Integral)" th:selected="${metodoFiltro == 'SIS (Seguro Integral)'}">SIS</option>
+                    </select>
+                </div>
+                <div style="width: 210px;">
+                    <select name="estado" class="form-select">
+                        <option value="" th:selected="${estadoFiltro == null}">Todos los estados</option>
+                        <option value="PAGADO" th:selected="${estadoFiltro == 'PAGADO'}">Pagado</option>
+                        <option value="PENDIENTE" th:selected="${estadoFiltro == 'PENDIENTE'}">Pendiente</option>
+                        <option value="CANCELADO" th:selected="${estadoFiltro == 'CANCELADO'}">Cancelado</option>
+                    </select>
+                </div>
+                <div style="width: 155px;">
+                    <input type="date" name="desde" class="form-control"
+                           th:value="${desdeFiltro}" aria-label="Desde">
+                </div>
+                <div style="width: 155px;">
+                    <input type="date" name="hasta" class="form-control"
+                           th:value="${hastaFiltro}" aria-label="Hasta">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-sm px-3 py-2">Filtrar</button>
+                    <a th:href="@{/admin/pagos}"
+                       class="btn btn-outline-secondary btn-sm px-3 py-2">Limpiar</a>
+                </div>
             </form>
 
-        </div>
+            <!-- TABLA -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
 
-    </nav>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID Pago</th>
+                                    <th>ID Cita</th>
+                                    <th>Paciente / Servicio</th>
+                                    <th>Monto</th>
+                                    <th>Fecha de pago</th>
+                                    <th>Método</th>
+                                    <th>Estado</th>
+                                    
+                                </tr>
+                            </thead>
 
+                            <tbody>
+                                <tr th:each="p : ${pagos}">
 
-    <!-- CONTENIDO -->
-    <main class="container py-4">
+                                    <td class="fw-semibold text-muted" th:text="${'#' + p.idPago}">#01</td>
 
-        <!-- ENCABEZADO -->
-        <div class="d-flex flex-wrap justify-content-between
-                    align-items-center gap-3 mb-4">
+                                    <!-- Relación Pago -> Citas -->
+                                    <td>
+                                        <a href="#" class="badge bg-light text-primary border border-primary border-opacity-25 text-decoration-none px-2 py-1" style="font-size: 12px;" th:text="${p.cita != null ? 'Cita #' + p.cita.idCita : 'Cita #-'}">
+                                            <i class="bi bi-calendar-event me-1"></i> Cita #2
+                                        </a>
+                                    </td>
 
-            <div>
+                                    <td>
+                                        <div class="fw-bold text-dark"
+                                             th:text="${p.cita != null and p.cita.paciente != null and p.cita.paciente.usuario != null ? p.cita.paciente.usuario.nombre + ' ' + p.cita.paciente.usuario.apellido : 'Paciente no asignado'}">
+                                            Paciente
+                                        </div>
+                                        <small class="text-muted"
+                                               th:text="${p.cita != null and p.cita.medico != null and p.cita.medico.usuario != null ? 'Dr. ' + p.cita.medico.usuario.nombre + ' ' + p.cita.medico.usuario.apellido : 'Médico no asignado'}">
+                                            Profesional
+                                        </small>
+                                    </td>
 
-                <h2 class="titulo mb-1">
+                                    <td class="monto">
+                                        S/ <span th:text="${p.monto}">30.00</span>
+                                    </td>
 
-                    <i class="bi bi-cash-stack me-2"></i>
+                                    <td class="text-muted" th:text="${p.fechaPago != null ? p.fechaPago : '-'}">
+                                        2026-10-11
+                                    </td>
 
-                    Gestión de Pagos
+                                    <td>
+                                        <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 11px; font-weight: 500;" th:text="${p.metodoPago}">
+                                            EFECTIVO
+                                        </span>
+                                    </td>
 
-                </h2>
+                                    <td>
+                                        <span class="badge"
+                                              th:classappend="${p.estado == 'PAGADO'} ? 'badge-pagado' : (${p.estado == 'PENDIENTE'} ? 'badge-pendiente' : 'badge-cancelado')"
+                                              th:text="${p.estado}">
+                                            PAGADO
+                                        </span>
+                                    </td>
 
-                <p class="text-muted mb-0">
-                    Consulta y registra los pagos de las citas médicas.
-                </p>
+									<!--
+                                    <td>
+                                        <div class="d-flex justify-content-center align-items-center gap-2">
+                                             
+                                            <a th:if="${p.estado == 'PENDIENTE'}" href="#" class="btn btn-dark btn-sm py-1 px-2 fw-bold" style="font-size: 11px; background-color: #0b1f36;">
+                                                Cobrar
+                                            </a>
+                                            <a th:if="${p.estado != 'PENDIENTE'}" href="#" class="btn btn-light btn-sm text-secondary p-1 px-2 border" title="Ver comprobante">
+                                                <i class="bi bi-file-earmark-text"></i>
+                                            </a>
+                                            <a href="#" class="btn btn-light btn-sm text-secondary p-1 px-2 border" title="Opciones">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                    -->
 
-            </div>
+                                </tr>
 
-            <div class="d-flex gap-2">
+                                <!-- SIN REGISTROS -->
+                                <tr th:if="${pagos == null or #lists.isEmpty(pagos)}">
+                                    <td colspan="8" class="text-center text-muted py-5">
+                                        <i class="bi bi-receipt fs-2 d-block mb-2 text-secondary"></i>
+                                        No existen pagos registrados en el sistema.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
 
-                <a th:href="@{/admin/dashboard}"
-                   class="btn btn-outline-secondary">
-
-                    <i class="bi bi-arrow-left"></i>
-                    Volver
-
-                </a>
-
-                <a th:href="@{/admin/pagos/nuevo}"
-                   class="btn btn-primary">
-
-                    <i class="bi bi-plus-circle me-1"></i>
-                    Registrar pago
-
-                </a>
-
-            </div>
-
-        </div>
-
-
-        <!-- MENSAJES -->
-        <div th:if="${mensaje}"
-             class="alert alert-success alert-dismissible fade show"
-             role="alert">
-
-            <i class="bi bi-check-circle-fill me-2"></i>
-
-            <span th:text="${mensaje}"></span>
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-
-        <div th:if="${error}"
-             class="alert alert-danger alert-dismissible fade show"
-             role="alert">
-
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-
-            <span th:text="${error}"></span>
-
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert">
-            </button>
-
-        </div>
-
-
-        <!-- RESUMEN -->
-        <div class="row g-3 mb-4">
-
-            <!-- TOTAL RECAUDADO -->
-            <div class="col-md-6">
-
-                <div class="card resumen-pagos shadow-sm h-100">
-
-                    <div class="card-body p-4 d-flex
-                                justify-content-between
-                                align-items-center">
-
-                        <div>
-
-                            <h6>Total recaudado</h6>
-
-                            <h2>
-                                S/
-                                <span th:text="${totalRecaudado != null ? totalRecaudado : '0.00'}">
-                                    0.00
-                                </span>
-                            </h2>
-
-                            <small>
-                                Pagos confirmados
-                            </small>
-
-                        </div>
-
-                        <div class="icono-resumen">
-
-                            <i class="bi bi-cash-coin"></i>
-
-                        </div>
-
+                    <!-- PIE DE TABLA (Paginación informativa) -->
+                    <div class="p-3 border-top d-flex justify-content-between align-items-center bg-white" style="border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;">
+                        <small class="text-muted" style="font-size: 12px;">
+                            <strong class="text-dark" th:text="${pagos != null ? #lists.size(pagos) : 0}">0</strong> pagos encontrados
+                        </small>
+                       
                     </div>
 
                 </div>
-
             </div>
 
-
-            <!-- CANTIDAD DE PAGOS -->
-            <div class="col-md-6">
-
-                <div class="card shadow-sm h-100">
-
-                    <div class="card-body p-4 d-flex
-                                justify-content-between
-                                align-items-center">
-
-                        <div>
-
-                            <h6 class="text-muted">
-                                Pagos registrados
-                            </h6>
-
-                            <h2 class="titulo"
-                                th:text="${pagos != null ? #lists.size(pagos) : 0}">
-                                0
-                            </h2>
-
-                            <small class="text-muted">
-                                Registros de pagos
-                            </small>
-
-                        </div>
-
-                        <div class="icono-resumen"
-                             style="background:#dbeafe;color:#2563eb;">
-
-                            <i class="bi bi-receipt"></i>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
+        </main>
 
 
-        <!-- TABLA -->
-        <div class="card shadow-sm">
+        <!-- PIE DE PÁGINA -->
+        <footer class="footer-main">
+            <p class="mb-0">
+                © 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas
+            </p>
+        </footer>
 
-            <div class="card-body p-4">
+    </div>
 
-                <h5 class="fw-bold mb-3">
-
-                    <i class="bi bi-list-ul me-2"></i>
-
-                    Historial de pagos
-
-                </h5>
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-hover align-middle">
-
-                        <thead>
-                            <tr>
-                                <th>ID Pago</th>
-                                <th>ID Cita</th>
-                                <th>Monto</th>
-                                <th>Fecha de pago</th>
-                                <th>Método</th>
-                                <th>Estado</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <tr th:each="p : ${pagos}">
-
-                                <td th:text="${p.idPago}"></td>
-
-                                <!-- Relación Pago -> Citas -->
-                                <td th:text="${p.cita != null ? p.cita.idCita : '-'}">
-                                </td>
-
-                                <td class="monto">
-
-                                    S/
-                                    <span th:text="${p.monto}"></span>
-
-                                </td>
-
-                                <td th:text="${p.fechaPago != null ? p.fechaPago : '-'}">
-                                </td>
-
-                                <td th:text="${p.metodoPago}"></td>
-
-                                <td>
-
-                                    <span class="badge"
-                                          th:classappend="${p.estado == 'PAGADO'} ? 'badge-pagado' : (${p.estado == 'PENDIENTE'} ? 'badge-pendiente' : 'badge-cancelado')"
-                                          th:text="${p.estado}">
-                                    </span>
-
-                                </td>
-
-                            </tr>
-
-
-                            <!-- SIN REGISTROS -->
-                            <tr th:if="${pagos == null or #lists.isEmpty(pagos)}">
-
-                                <td colspan="6"
-                                    class="text-center text-muted py-4">
-
-                                    <i class="bi bi-receipt fs-2 d-block mb-2"></i>
-
-                                    No existen pagos registrados.
-
-                                </td>
-
-                            </tr>
-
-                        </tbody>
-
-                    </table>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </main>
-
-
-    <!-- PIE DE PÁGINA -->
-    <footer class="text-center text-muted py-4">
-
-        <small>
-            © 2026 Centro Médico Buenos Aires de Villa
-            | Sistema de Gestión de Citas Médicas
-        </small>
-
-    </footer>
-
-
-    <script
-        src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

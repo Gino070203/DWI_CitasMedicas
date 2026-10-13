@@ -3,43 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Editar Médico</title>
+    <title>Editar Médico | Centro Médico Buenos Aires de Villa</title>
+
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #0b1f36;
+            --primary-blue: #123b70;
+            --accent-blue: #1767b2;
+            --bg-body: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        /* --- TOPBAR INSTITUCIONAL --- */
+        .topbar-form {
+            background-color: #ffffff;
+            height: 70px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background-color: var(--primary-dark);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* --- CONTENEDOR FORMULARIO --- */
+        .form-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .form-header-banner {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 25px 35px;
+            background-color: #ffffff;
+        }
+
+        .form-body-content {
+            padding: 35px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-control, .form-select {
+            font-size: 13px;
+            border-color: #cbd5e1;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(23, 103, 178, 0.1);
+            background-color: #fff;
+        }
+
+        .doctor-info-banner {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            color: #0369a1;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .btn-actualizar {
+            background-color: #0b1f36;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-actualizar:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-cancelar {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Footer General */
+        .footer-main {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h3>Editar Médico</h3>
+<body>
 
-            <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+    <!-- BARRA SUPERIOR INSTITUCIONAL -->
+    
 
-            <p>
-                Médico:
-                <strong th:text="${medico.usuario.nombre + ' ' + medico.usuario.apellido}"></strong>
-            </p>
 
-            <form method="post"
-                  th:action="@{/admin/medicos/actualizar/{id}(id=${medico.idMedico})}">
+    <!-- CONTENEDOR PRINCIPAL DEL FORMULARIO -->
+    <main class="container py-5" style="max-width: 850px;">
 
-                <label class="form-label">CMP</label>
-                <input name="cmp" class="form-control"
-                       th:value="${medico.cmp}" maxlength="20" required>
+        <div class="form-card">
+            
+            <!-- ENCABEZADO DEL FORMULARIO -->
+            <div class="form-header-banner">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-uppercase text-muted fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">
+                            <i class="bi bi-person-badge me-1"></i> Módulo de Personal Médico
+                        </span>
+                        <h2 class="fw-bold text-dark mb-1" style="font-size: 22px;">Editar Médico</h2>
+                        
+                    </div>
+                    
+                </div>
+            </div>
 
-                <label class="form-label mt-3">Especialidad</label>
-                <select name="idEspecialidad" class="form-select" required>
-                    <option th:each="e : ${especialidades}"
-                            th:value="${e.idEspecialidad}"
-                            th:text="${e.nombre}"
-                            th:selected="${e.idEspecialidad == medico.especialidad.idEspecialidad}">
-                    </option>
-                </select>
+            <!-- CUERPO / CAMPOS DEL FORMULARIO -->
+            <div class="form-body-content">
 
-                <button class="btn btn-success mt-4">Actualizar</button>
-                <a th:href="@{/admin/medicos}" class="btn btn-secondary mt-4">Cancelar</a>
-            </form>
+                <!-- MENSAJE DE ERROR -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- BANNER DE MÉDICO SELECCIONADO -->
+                <div class="doctor-info-banner">
+                    <i class="bi bi-person-check fs-4 flex-shrink-0"></i>
+                    <div>
+                        Editando credenciales del médico: <strong class="text-dark" th:text="${medico.usuario.nombre + ' ' + medico.usuario.apellido}"></strong>
+                    </div>
+                </div>
+
+                <form method="post"
+                      th:action="@{/admin/medicos/actualizar/{id}(id=${medico.idMedico})}">
+
+                    <div class="row g-3 mb-4">
+                        <!-- CMP -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Número de Colegiatura (CMP) <span class="text-danger">*</span></label>
+                            <input name="cmp" class="form-control"
+                                   th:value="${medico.cmp}" maxlength="20" required>
+                            
+                        </div>
+
+                        <!-- ESPECIALIDAD -->
+                        <div class="col-12 col-md-6">
+                            <label class="form-label">Especialidad <span class="text-danger">*</span></label>
+                            <select name="idEspecialidad" class="form-select" required>
+                                <option th:each="e : ${especialidades}"
+                                        th:value="${e.idEspecialidad}"
+                                        th:text="${e.nombre}"
+                                        th:selected="${e.idEspecialidad == medico.especialidad.idEspecialidad}">
+                                </option>
+                            </select>
+                            
+                        </div>
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                        <a th:href="@{/admin/medicos}" class="btn-cancelar">
+                            <i class="bi bi-x me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-actualizar">
+                            <i class="bi bi-check-circle me-1"></i> Actualizar Médico
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
-    </div>
-</div>
+
+    </main>
+
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="footer-main">
+        <p class="mb-0">
+            © 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas
+        </p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

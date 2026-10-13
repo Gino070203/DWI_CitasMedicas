@@ -30,8 +30,15 @@ public class MedicoAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("medicos", service.listar());
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) Long idEspecialidad,
+                         @RequestParam(required = false) Boolean estado,
+                         Model model) {
+        model.addAttribute("medicos", service.filtrar(q, idEspecialidad, estado));
+        model.addAttribute("especialidadesFiltro", especialidades.listarTodas());
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("especialidadFiltro", idEspecialidad);
+        model.addAttribute("estadoFiltro", estado);
         return "admin/medicos/lista";
     }
 

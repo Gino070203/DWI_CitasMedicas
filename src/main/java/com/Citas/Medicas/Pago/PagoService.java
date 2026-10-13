@@ -30,6 +30,24 @@ public class PagoService {
         return pagoRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Pago> filtrar(String texto, String estado, String metodo,
+                              LocalDate desde, LocalDate hasta) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        String estadoLimpio = estado == null || estado.isBlank() ? null : estado.trim();
+        String metodoLimpio = metodo == null || metodo.isBlank() ? null : metodo.trim();
+        Long idRegistro = null;
+        if (criterio != null && criterio.matches("[0-9]+")) {
+            try {
+                idRegistro = Long.valueOf(criterio);
+            } catch (NumberFormatException ignored) {
+                // Se conserva la búsqueda textual si el número excede Long.
+            }
+        }
+        return pagoRepository.filtrarPagos(
+                criterio, idRegistro, estadoLimpio, metodoLimpio, desde, hasta);
+    }
+
 
     @Transactional(readOnly = true)
     public Pago obtener(Long idPago) {
@@ -97,7 +115,8 @@ public class PagoService {
         String numeroSis = cita.getPaciente().getSis();
 
         boolean tieneSis = numeroSis != null
-                && !numeroSis.trim().isEmpty();
+                && !numeroSis.trim().isEmpty()
+                && !Boolean.FALSE.equals(cita.getPaciente().getSisVerificado());
 
         if (tieneSis) {
 

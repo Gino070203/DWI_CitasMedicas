@@ -128,17 +128,48 @@
             </div>
         </section>
 
-        <section class="patient-panel mb-4" aria-labelledby="datosProtegidosTitulo">
-            <h2 class="patient-panel-heading" id="datosProtegidosTitulo">Datos administrados por el centro médico</h2>
-            <dl class="patient-profile-readonly mb-2">
-                <dt>Número de historia clínica</dt>
-                <dd th:text="${perfilVista.numeroHistoria ?: 'No registrado'}">No registrado</dd>
-                <dt>SIS</dt>
-                <dd th:text="${perfilVista.sis ?: 'No registrado'}">No registrado</dd>
-            </dl>
-            <p class="form-text mb-0">
-                Estos datos no se modifican desde el portal. Si necesitas corregirlos, comunícate con el centro médico.
+        <section class="patient-panel mb-4" aria-labelledby="datosMedicosTitulo">
+            <h2 class="patient-panel-heading" id="datosMedicosTitulo">Identificación médica</h2>
+            <p class="patient-page-intro mb-3">
+                Puedes ingresar o corregir estos datos. Los cambios quedan pendientes de revisión por el centro médico.
+                Un SIS pendiente de validación no activa cobertura automáticamente.
             </p>
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilHistoria">Número de historia clínica</label>
+                    <input id="perfilHistoria" type="text" autocomplete="off"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('numeroHistoria')} ? ' is-invalid' : ''"
+                           th:field="*{numeroHistoria}" maxlength="20"
+                           placeholder="Ej. HC-2026-001">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('numeroHistoria')}"
+                         th:errors="*{numeroHistoria}"></div>
+                    <span th:if="${#strings.isEmpty(perfilVista.numeroHistoria)}"
+                          class="form-text">Aún no registrado.</span>
+                    <span th:if="${!#strings.isEmpty(perfilVista.numeroHistoria) and perfilVista.numeroHistoriaVerificado}"
+                          class="badge status-confirmada mt-2">Verificado por el centro</span>
+                    <span th:if="${!#strings.isEmpty(perfilVista.numeroHistoria) and !perfilVista.numeroHistoriaVerificado}"
+                          class="badge status-pendiente mt-2">Pendiente de revisión</span>
+                </div>
+
+                <div class="col-12 col-md-6">
+                    <label class="patient-form-label" for="perfilSis">Número SIS</label>
+                    <input id="perfilSis" type="text" autocomplete="off"
+                           class="form-control patient-form-control"
+                           th:classappend="${#fields.hasErrors('sis')} ? ' is-invalid' : ''"
+                           th:field="*{sis}" maxlength="20"
+                           placeholder="Ingresa tu número SIS si cuentas con él">
+                    <div class="invalid-feedback d-block"
+                         th:if="${#fields.hasErrors('sis')}" th:errors="*{sis}"></div>
+                    <span th:if="${#strings.isEmpty(perfilVista.sis)}"
+                          class="form-text">Opcional. Déjalo vacío si no cuentas con SIS.</span>
+                    <span th:if="${!#strings.isEmpty(perfilVista.sis) and perfilVista.sisVerificado}"
+                          class="badge status-confirmada mt-2">Verificado por el centro</span>
+                    <span th:if="${!#strings.isEmpty(perfilVista.sis) and !perfilVista.sisVerificado}"
+                          class="badge status-pendiente mt-2">Pendiente de revisión</span>
+                </div>
+            </div>
         </section>
 
         <div class="d-flex flex-wrap gap-2 justify-content-end">

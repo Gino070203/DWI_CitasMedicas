@@ -31,6 +31,12 @@ public class MedicoService {
     }
 
     @Transactional(readOnly = true)
+    public List<Medico> filtrar(String texto, Long idEspecialidad, Boolean estado) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        return medicos.filtrarMedicos(criterio, idEspecialidad, estado);
+    }
+
+    @Transactional(readOnly = true)
     public Medico obtener(Long id) {
         return medicos.buscarPorId(id)
                 .orElseThrow(() -> new IllegalArgumentException("Médico no encontrado"));

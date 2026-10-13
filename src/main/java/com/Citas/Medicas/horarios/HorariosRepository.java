@@ -33,6 +33,26 @@ public interface HorariosRepository
     @Query("""
         SELECT h FROM Horarios h
         JOIN FETCH h.medico m
+        JOIN FETCH m.usuario u
+        JOIN FETCH m.especialidad e
+        WHERE (:texto IS NULL
+               OR LOWER(COALESCE(u.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.apellido, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.dni, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(m.cmp, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(e.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%'))
+          AND (:diaSemana IS NULL OR UPPER(h.diaSemana) = UPPER(:diaSemana))
+          AND (:estado IS NULL OR h.estado = :estado)
+        ORDER BY u.apellido, u.nombre, h.diaSemana, h.horaInicio
+    """)
+    List<Horarios> filtrarHorarios(
+            @Param("texto") String texto,
+            @Param("diaSemana") String diaSemana,
+            @Param("estado") Boolean estado);
+
+    @Query("""
+        SELECT h FROM Horarios h
+        JOIN FETCH h.medico m
         JOIN FETCH m.usuario
         WHERE h.estado = true AND m.estado = true
         ORDER BY h.diaSemana, h.horaInicio
