@@ -16,8 +16,12 @@ public class EspecialidadAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("especialidades", service.listar());
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) Boolean estado,
+                         Model model) {
+        model.addAttribute("especialidades", service.filtrar(q, estado));
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("estadoFiltro", estado);
         return "admin/especialidades/lista";
     }
 

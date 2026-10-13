@@ -69,6 +69,23 @@ public class CitasService {
         return citasRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
+    public List<Citas> filtrar(String texto, String estado,
+                               LocalDate fecha, Long idMedico) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        String estadoLimpio = estado == null || estado.isBlank() ? null : estado.trim();
+        Long idCita = null;
+        if (criterio != null && criterio.matches("[0-9]+")) {
+            try {
+                idCita = Long.valueOf(criterio);
+            } catch (NumberFormatException ignored) {
+                // Se conserva la búsqueda textual si el número excede Long.
+            }
+        }
+        return citasRepository.filtrarCitas(
+                criterio, idCita, estadoLimpio, fecha, idMedico);
+    }
+
     // BUSCAR CITA POR ID
     @Transactional(readOnly = true)
     public Citas obtener(Long idCita) {
@@ -300,7 +317,11 @@ public class CitasService {
         cita.setHoraInicio(turno.horaInicio());
         cita.setHoraFin(turno.horaFin());
 
-        boolean tieneSis = paciente.getSis() != null && !paciente.getSis().isBlank();
+        boolean tieneSis = paciente.getSis() != null
+                && !paciente.getSis().isBlank()
+                // Los registros antiguos con estado nulo se consideran validados;
+                // un SIS ingresado por el paciente queda explícitamente en false.
+                && !Boolean.FALSE.equals(paciente.getSisVerificado());
         Pago pago = new Pago();
         pago.setCita(cita);
         if (tieneSis) {

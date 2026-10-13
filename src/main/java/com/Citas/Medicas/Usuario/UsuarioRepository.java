@@ -21,6 +21,23 @@ public interface UsuarioRepository
 
     @Query("""
         SELECT u FROM Usuario u
+        LEFT JOIN FETCH u.rol r
+        WHERE (:texto IS NULL
+               OR LOWER(COALESCE(u.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.apellido, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.correo, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.dni, '')) LIKE CONCAT('%', LOWER(:texto), '%'))
+          AND (:rol IS NULL OR UPPER(r.nombre) = UPPER(:rol))
+          AND (:estado IS NULL OR u.estado = :estado)
+        ORDER BY u.apellido, u.nombre
+    """)
+    List<Usuario> filtrarUsuarios(
+            @Param("texto") String texto,
+            @Param("rol") String rol,
+            @Param("estado") Boolean estado);
+
+    @Query("""
+        SELECT u FROM Usuario u
         WHERE LOWER(u.nombre) LIKE LOWER(CONCAT('%', :texto, '%'))
            OR LOWER(u.apellido) LIKE LOWER(CONCAT('%', :texto, '%'))
            OR LOWER(u.correo) LIKE LOWER(CONCAT('%', :texto, '%'))

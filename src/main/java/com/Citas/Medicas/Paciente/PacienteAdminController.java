@@ -28,8 +28,14 @@ public class PacienteAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("pacientes", service.listar());
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) Boolean estado,
+                         @RequestParam(required = false) Boolean conSis,
+                         Model model) {
+        model.addAttribute("pacientes", service.filtrar(q, estado, conSis));
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("estadoFiltro", estado);
+        model.addAttribute("conSisFiltro", conSis);
         return "admin/pacientes/lista";
     }
 
@@ -75,10 +81,13 @@ public class PacienteAdminController {
                              LocalDate fechaNacimiento,
                              @RequestParam String genero,
                              @RequestParam(required = false) String direccion,
+                             @RequestParam(defaultValue = "false") boolean numeroHistoriaVerificado,
+                             @RequestParam(defaultValue = "false") boolean sisVerificado,
                              RedirectAttributes redirect) {
         try {
             service.actualizar(id, numeroHistoria, sis,
-                    fechaNacimiento, genero, direccion);
+                    fechaNacimiento, genero, direccion,
+                    numeroHistoriaVerificado, sisVerificado);
             redirect.addFlashAttribute("mensaje", "Paciente actualizado");
             return "redirect:/admin/pacientes";
         } catch (IllegalArgumentException e) {

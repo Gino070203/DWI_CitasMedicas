@@ -51,6 +51,13 @@ public class HorariosService {
     }
 
     @Transactional(readOnly = true)
+    public List<Horarios> filtrar(String texto, String diaSemana, Boolean estado) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        String dia = diaSemana == null || diaSemana.isBlank() ? null : diaSemana.trim();
+        return horarios.filtrarHorarios(criterio, dia, estado);
+    }
+
+    @Transactional(readOnly = true)
     public Horarios obtener(Long id) {
         return horarios.findById(id).orElseThrow(() ->
             new IllegalArgumentException("Horario no encontrado"));

@@ -18,6 +18,18 @@ public interface EspecialidadRepository
 
     @Query("""
         SELECT e FROM Especialidad e
+        WHERE (:texto IS NULL
+               OR LOWER(COALESCE(e.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(e.descripcion, '')) LIKE CONCAT('%', LOWER(:texto), '%'))
+          AND (:estado IS NULL OR e.estado = :estado)
+        ORDER BY e.nombre
+    """)
+    List<Especialidad> filtrarEspecialidades(
+            @Param("texto") String texto,
+            @Param("estado") Boolean estado);
+
+    @Query("""
+        SELECT e FROM Especialidad e
         WHERE e.estado = true
         ORDER BY e.nombre
     """)

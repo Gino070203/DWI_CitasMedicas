@@ -1,12 +1,1491 @@
 <!DOCTYPE html>
-<html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Centro Médico | Inicio</title>
+
+    <!-- Bootstrap Icons -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+        rel="stylesheet">
+
+    <style>
+
+        /* =====================================================
+           CONFIGURACIÓN GENERAL
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f4f7fb;
+            color: #263238;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 25px;
+        }
+
+
+        /* =====================================================
+           NAVBAR
+        ===================================================== */
+
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+
+            height: 76px;
+
+            background: #0f3d56;
+
+            display: flex;
+            align-items: center;
+
+            z-index: 1000;
+
+            box-shadow: 0 3px 15px rgba(15, 61, 86, 0.15);
+        }
+
+        .navbar-container {
+            width: 100%;
+            max-width: 1180px;
+
+            margin: 0 auto;
+            padding: 0 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+
+        /* =====================================================
+           LOGO
+        ===================================================== */
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+
+            color: white;
+
+            font-size: 17px;
+            font-weight: 600;
+
+            max-width: 420px;
+        }
+
+        .brand-icon {
+            width: 42px;
+            height: 42px;
+
+            flex-shrink: 0;
+
+            background: #2bb6a8;
+
+            border-radius: 10px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+            font-size: 21px;
+        }
+
+        .brand-text {
+            line-height: 1.25;
+        }
+
+        .brand-text strong {
+            display: block;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .brand-text span {
+            display: block;
+
+            color: #b8d5df;
+
+            font-size: 10px;
+            font-weight: 400;
+
+            margin-top: 2px;
+        }
+
+
+        /* =====================================================
+           MENÚ
+        ===================================================== */
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .nav-link {
+            color: #d5e5ea;
+
+            padding: 10px 13px;
+
+            border-radius: 7px;
+
+            font-size: 13px;
+            font-weight: 500;
+
+            transition: 0.2s;
+        }
+
+        .nav-link:hover {
+            color: white;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .nav-link.login {
+            background: #2bb6a8;
+            color: white;
+
+            margin-left: 8px;
+
+            padding: 10px 17px;
+
+            font-weight: 600;
+        }
+
+        .nav-link.login:hover {
+            background: #168b81;
+            transform: translateY(-1px);
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero-section {
+
+            min-height: 650px;
+
+            padding-top: 76px;
+
+            background:
+                linear-gradient(
+                    rgba(15, 61, 86, 0.78),
+                    rgba(15, 61, 86, 0.72)
+                ),
+                var(--hero-image, url('/img/heroBuenosAires.webp'))
+                center center / cover no-repeat;
+
+            display: flex;
+            align-items: center;
+
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 680px;
+
+            color: white;
+
+            padding: 70px 0;
+        }
+
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            background: rgba(43, 182, 168, 0.18);
+
+            border: 1px solid rgba(43, 182, 168, 0.45);
+
+            color: #bcece7;
+
+            padding: 8px 14px;
+
+            border-radius: 20px;
+
+            font-size: 12px;
+            font-weight: 600;
+
+            margin-bottom: 22px;
+        }
+
+        .hero-content h1 {
+            font-size: 48px;
+
+            line-height: 1.12;
+
+            font-weight: 700;
+
+            margin-bottom: 20px;
+        }
+
+        .hero-content h1 span {
+            color: #2bb6a8;
+        }
+
+        .hero-content p {
+            max-width: 620px;
+
+            color: #dcebf0;
+
+            font-size: 17px;
+
+            line-height: 1.7;
+
+            margin-bottom: 30px;
+        }
+
+
+        /* =====================================================
+           BOTONES HERO
+        ===================================================== */
+
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+
+            background: #2bb6a8;
+            color: white;
+
+            padding: 13px 22px;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+            font-weight: 600;
+
+            box-shadow:
+                0 5px 15px rgba(43, 182, 168, 0.25);
+
+            transition: 0.2s;
+        }
+
+        .btn-primary:hover {
+            background: #168b81;
+
+            color: white;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 7px 18px rgba(43, 182, 168, 0.35);
+        }
+
+        .btn-outline {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+
+            background: transparent;
+
+            color: white;
+
+            border: 1px solid rgba(255,255,255,0.55);
+
+            padding: 12px 21px;
+
+            border-radius: 8px;
+
+            font-size: 14px;
+            font-weight: 500;
+
+            transition: 0.2s;
+        }
+
+        .btn-outline:hover {
+            background: white;
+            color: #173f55;
+        }
+
+
+        /* =====================================================
+           SERVICIOS
+        ===================================================== */
+
+        .services-section {
+            padding: 85px 0;
+
+            background: #f4f7fb;
+        }
+
+        .section-heading {
+            text-align: center;
+
+            margin-bottom: 48px;
+        }
+
+        .section-heading h2 {
+            color: #173f55;
+
+            font-size: 29px;
+
+            font-weight: 700;
+
+            margin-bottom: 10px;
+        }
+
+        .section-heading p {
+            color: #7b8a93;
+
+            font-size: 14px;
+        }
+
+        .section-line {
+            width: 55px;
+            height: 4px;
+
+            background: #2bb6a8;
+
+            border-radius: 5px;
+
+            margin: 16px auto 0;
+        }
+
+
+        /* =====================================================
+           TARJETAS DE SERVICIOS
+        ===================================================== */
+
+        .services-grid {
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 20px;
+        }
+
+        .service-card {
+            background: white;
+
+            border: 1px solid #e8edf2;
+
+            border-radius: 12px;
+
+            padding: 28px 24px;
+
+            text-align: center;
+
+            transition: 0.25s;
+
+            box-shadow:
+                0 3px 12px rgba(15, 61, 86, 0.035);
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+
+            border-color: #d7ece9;
+
+            box-shadow:
+                0 10px 25px rgba(15, 61, 86, 0.09);
+        }
+
+        .service-icon {
+            width: 58px;
+            height: 58px;
+
+            margin: 0 auto 18px;
+
+            background: #e3f5f2;
+
+            color: #168b81;
+
+            border-radius: 12px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            font-size: 25px;
+        }
+
+        .service-card h3 {
+            color: #173f55;
+
+            font-size: 16px;
+
+            margin-bottom: 10px;
+        }
+
+        .service-card p {
+            color: #7b8a93;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           SOBRE NOSOTROS
+        ===================================================== */
+
+        .about-section {
+            padding: 85px 0;
+
+            background: white;
+        }
+
+        .about-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.15fr 0.85fr;
+
+            gap: 70px;
+
+            align-items: center;
+        }
+
+        .about-content h2 {
+            color: #173f55;
+
+            font-size: 29px;
+
+            font-weight: 700;
+
+            margin-bottom: 13px;
+        }
+
+        .about-line {
+            width: 55px;
+            height: 4px;
+
+            background: #2bb6a8;
+
+            border-radius: 5px;
+
+            margin-bottom: 25px;
+        }
+
+        .about-content p {
+            color: #687983;
+
+            font-size: 14px;
+
+            line-height: 1.9;
+
+            margin-bottom: 18px;
+        }
+
+        .about-highlight {
+            display: flex;
+            align-items: center;
+
+            gap: 13px;
+
+            margin-top: 25px;
+
+            padding: 16px;
+
+            background: #f4f9f9;
+
+            border: 1px solid #e0efed;
+
+            border-radius: 9px;
+        }
+
+        .highlight-icon {
+            width: 40px;
+            height: 40px;
+
+            flex-shrink: 0;
+
+            background: #e3f5f2;
+
+            color: #168b81;
+
+            border-radius: 9px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .about-highlight strong {
+            display: block;
+
+            color: #173f55;
+
+            font-size: 13px;
+
+            margin-bottom: 3px;
+        }
+
+        .about-highlight span {
+            color: #829099;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           IMAGEN / ELEMENTO VISUAL
+        ===================================================== */
+
+        .about-visual {
+            min-height: 320px;
+
+            border-radius: 14px;
+
+            background:
+                linear-gradient(
+                    rgba(15, 61, 86, 0.05),
+                    rgba(43, 182, 168, 0.12)
+                );
+
+            border: 1px solid #e4ecef;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .about-visual::before {
+            content: "";
+
+            position: absolute;
+
+            width: 230px;
+            height: 230px;
+
+            border-radius: 50%;
+
+            background: #e3f5f2;
+
+            opacity: 0.8;
+        }
+
+        .about-visual i {
+            position: relative;
+
+            color: #168b81;
+
+            font-size: 120px;
+
+            opacity: 0.75;
+        }
+
+
+        /* =====================================================
+           CONTACTO
+        ===================================================== */
+
+        .contact-section {
+            padding: 75px 0;
+
+            background: #0f3d56;
+
+            color: white;
+        }
+
+        .contact-grid {
+            display: grid;
+
+            grid-template-columns:
+                1.2fr 1fr 1fr;
+
+            gap: 45px;
+        }
+
+        .contact-column h3 {
+            font-size: 16px;
+
+            margin-bottom: 17px;
+
+            font-weight: 600;
+        }
+
+        .contact-column p {
+            color: #b8d5df;
+
+            font-size: 12px;
+
+            line-height: 1.8;
+        }
+
+        .contact-item {
+            display: flex;
+
+            align-items: flex-start;
+
+            gap: 10px;
+
+            margin-bottom: 12px;
+        }
+
+        .contact-item i {
+            color: #2bb6a8;
+
+            font-size: 15px;
+
+            margin-top: 2px;
+        }
+
+        .contact-item span {
+            color: #b8d5df;
+
+            font-size: 12px;
+
+            line-height: 1.5;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        .footer-bottom {
+            background: #0b3044;
+
+            border-top: 1px solid rgba(255,255,255,0.08);
+
+            padding: 20px 0;
+
+            text-align: center;
+        }
+
+        .footer-bottom p {
+            color: #91b3c0;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .navbar {
+                height: auto;
+
+                min-height: 70px;
+            }
+
+            .navbar-container {
+                padding: 13px 20px;
+            }
+
+            .nav-menu {
+                gap: 2px;
+            }
+
+            .nav-link {
+                padding: 8px 9px;
+
+                font-size: 12px;
+            }
+
+            .hero-content h1 {
+                font-size: 40px;
+            }
+
+            .services-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+
+                gap: 35px;
+            }
+
+            .contact-grid {
+                grid-template-columns:
+                    repeat(2, 1fr);
+            }
+
+        }
+
+
+        @media (max-width: 650px) {
+
+            .navbar-container {
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 10px;
+            }
+
+            .nav-menu {
+                width: 100%;
+
+                overflow-x: auto;
+
+                padding-bottom: 3px;
+            }
+
+            .nav-link {
+                white-space: nowrap;
+            }
+
+            .hero-section {
+                padding-top: 120px;
+
+                min-height: 600px;
+            }
+
+            .hero-content {
+                padding: 50px 0;
+            }
+
+            .hero-content h1 {
+                font-size: 34px;
+            }
+
+            .hero-content p {
+                font-size: 14px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+
+                align-items: flex-start;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .about-visual {
+                min-height: 250px;
+            }
+
+        }
+
+        /* Paleta alineada al panel administrativo */
+        :root {
+            --primary-dark: #0b1f36;
+            --primary-blue: #123b70;
+            --accent-blue: #1767b2;
+            --bg-body: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --accent-soft: #dbeafe;
+        }
+
+        body {
+            color: var(--text-main);
+            background-color: var(--bg-body);
+        }
+
+        .navbar,
+        .contact-section {
+            background-color: var(--primary-dark);
+        }
+
+        .navbar {
+            box-shadow: 0 3px 15px rgba(11, 31, 54, .18);
+        }
+
+        .brand-icon,
+        .nav-link.login,
+        .btn-primary {
+            background-color: var(--accent-blue);
+        }
+
+        .nav-link.login:hover,
+        .btn-primary:hover {
+            background-color: var(--primary-blue);
+        }
+
+        .nav-link {
+            color: #cbd5e1;
+        }
+
+        .hero-section {
+            background:
+                linear-gradient(rgba(11, 31, 54, .82), rgba(11, 31, 54, .75)),
+                var(--hero-image, url('/img/heroBuenosAires.webp')) center center / cover no-repeat;
+        }
+
+        .hero-label {
+            color: #dbeafe;
+            background: rgba(23, 103, 178, .2);
+            border-color: rgba(23, 103, 178, .55);
+        }
+
+        .hero-content h1 span {
+            color: #93c5fd;
+        }
+
+        .hero-content p,
+        .contact-column p,
+        .contact-item span {
+            color: #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            color: var(--primary-blue);
+        }
+
+        .services-section {
+            background: var(--bg-body);
+        }
+
+        .section-heading h2,
+        .about-content h2,
+        .service-card h3,
+        .about-highlight strong {
+            color: var(--primary-blue);
+        }
+
+        .section-heading p,
+        .service-card p,
+        .about-content p,
+        .about-highlight span {
+            color: var(--text-muted);
+        }
+
+        .section-line,
+        .about-line {
+            background: var(--accent-blue);
+        }
+
+        .service-icon,
+        .highlight-icon {
+            color: var(--accent-blue);
+            background: var(--accent-soft);
+        }
+
+        .about-highlight {
+            background: #eff6ff;
+            border-color: #dbeafe;
+        }
+
+        .about-visual {
+            background:
+                linear-gradient(rgba(11, 31, 54, .1), rgba(11, 31, 54, .32)),
+                var(--about-image, #eff6ff) center center / cover no-repeat;
+            border-color: #dbeafe;
+        }
+
+        .about-visual::before {
+            background: rgba(219, 234, 254, .2);
+        }
+
+        .about-visual i {
+            color: #fff;
+            text-shadow: 0 3px 16px rgba(11, 31, 54, .55);
+        }
+
+        .contact-item i {
+            color: #93c5fd;
+        }
+
+        .footer-bottom {
+            background: #07172a;
+        }
+
+        .footer-bottom p {
+            color: #94a3b8;
+        }
+
+    </style>
+
 </head>
+
+
 <body>
 
-<h1>Soy el home</h1>
+
+    <!-- =====================================================
+         NAVBAR
+    ====================================================== -->
+
+    <header class="navbar">
+
+        <div class="navbar-container">
+
+
+            <!-- LOGO -->
+
+            <a th:href="@{/}" class="navbar-brand">
+
+                <div class="brand-icon">
+                    <i class="bi bi-heart-pulse"></i>
+                </div>
+
+                <div class="brand-text">
+
+                    <strong>
+                        Centro de Salud Buenos Aires de Villa
+                    </strong>
+
+                    <span>
+                        Sistema de Gestión Médica
+                    </span>
+
+                </div>
+
+            </a>
+
+
+            <!-- MENÚ -->
+
+            <nav class="nav-menu">
+
+                <a
+                    th:href="@{/login}"
+                    class="nav-link login">
+
+                    <i class="bi bi-box-arrow-in-right"></i>
+
+                    Iniciar sesión
+
+                </a>
+
+                <a
+                    href="#servicios"
+                    class="nav-link">
+
+                    Servicios
+
+                </a>
+
+                <a
+                    href="#nosotros"
+                    class="nav-link">
+
+                    Nosotros
+
+                </a>
+
+                <a
+                    href="#contacto"
+                    class="nav-link">
+
+                    Contacto
+
+                </a>
+
+            </nav>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero-section"
+             th:style="'--hero-image: url(' + @{/img/heroBuenosAires.webp} + ')'">
+
+        <div class="container">
+
+            <div class="hero-content">
+
+                <div class="hero-label">
+
+                    <i class="bi bi-heart-pulse"></i>
+
+                    Atención médica integral
+
+                </div>
+
+
+                <h1>
+
+                    Cuidamos tu salud,
+                    <span>cuidamos de ti.</span>
+
+                </h1>
+
+
+                <p>
+
+                    En el Centro de Salud Buenos Aires de Villa
+                    trabajamos para brindar atención médica de calidad
+                    a las familias de nuestra comunidad.
+
+                </p>
+
+
+                <div class="hero-buttons">
+
+                    <a
+                        th:href="@{/login}"
+                        class="btn-primary">
+
+                        <i class="bi bi-box-arrow-in-right"></i>
+
+                        Iniciar sesión
+
+                    </a>
+
+
+                    <a
+                        href="#servicios"
+                        class="btn-outline">
+
+                        Conocer nuestros servicios
+
+                        <i class="bi bi-arrow-down"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SERVICIOS
+    ====================================================== -->
+
+    <section
+        class="services-section"
+        id="servicios">
+
+        <div class="container">
+
+
+            <div class="section-heading">
+
+                <h2>
+                    Nuestros Servicios
+                </h2>
+
+                <p>
+                    Atención especializada para cuidar de ti y de tu familia.
+                </p>
+
+                <div class="section-line"></div>
+
+            </div>
+
+
+            <div class="services-grid">
+
+
+                <!-- MEDICINA GENERAL -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-activity"></i>
+
+                    </div>
+
+                    <h3>
+                        Medicina General
+                    </h3>
+
+                    <p>
+                        Consultas médicas generales con profesionales
+                        altamente capacitados para tu diagnóstico y
+                        tratamiento.
+                    </p>
+
+                </div>
+
+
+                <!-- CARDIOLOGÍA -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-heart-pulse"></i>
+
+                    </div>
+
+                    <h3>
+                        Cardiología
+                    </h3>
+
+                    <p>
+                        Estudios especializados del corazón con tecnología
+                        avanzada para el cuidado de tu salud cardiovascular.
+                    </p>
+
+                </div>
+
+
+                <!-- PEDIATRÍA -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-capsule"></i>
+
+                    </div>
+
+                    <h3>
+                        Pediatría
+                    </h3>
+
+                    <p>
+                        Atención médica especializada para los más pequeños
+                        del hogar con cariño y profesionalismo.
+                    </p>
+
+                </div>
+
+
+                <!-- OFTALMOLOGÍA -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-eye"></i>
+
+                    </div>
+
+                    <h3>
+                        Oftalmología
+                    </h3>
+
+                    <p>
+                        Cuidado integral de la salud visual con exámenes
+                        completos y tratamientos personalizados.
+                    </p>
+
+                </div>
+
+
+                <!-- ODONTOLOGÍA -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-emoji-smile"></i>
+
+                    </div>
+
+                    <h3>
+                        Odontología
+                    </h3>
+
+                    <p>
+                        Sonrisas saludables con tratamientos dentales
+                        y atención de calidad.
+                    </p>
+
+                </div>
+
+
+                <!-- DIAGNÓSTICO -->
+
+                <div class="service-card">
+
+                    <div class="service-icon">
+
+                        <i class="bi bi-cpu"></i>
+
+                    </div>
+
+                    <h3>
+                        Diagnóstico por Imagen
+                    </h3>
+
+                    <p>
+                        Equipos de última generación para rayos X,
+                        ecografías y estudios médicos.
+                    </p>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         SOBRE NOSOTROS
+    ====================================================== -->
+
+    <section
+        class="about-section"
+        id="nosotros">
+
+        <div class="container">
+
+            <div class="about-grid">
+
+
+                <!-- TEXTO -->
+
+                <div class="about-content">
+
+                    <h2>
+                        Sobre Nosotros
+                    </h2>
+
+                    <div class="about-line"></div>
+
+
+                    <p>
+
+                        Desde nuestra fundación en el corazón de Chorrillos,
+                        el <strong>Centro Materno Infantil Buenos Aires de Villa</strong>
+                        ha sido el hogar médico de miles de familias de Lima Sur.
+
+                    </p>
+
+
+                    <p>
+
+                        Nos enorgullece ser el primer punto de contacto
+                        para el cuidado de tu salud, especializándonos en
+                        el acompañamiento de las madres desde el primer
+                        mes de gestación y en el crecimiento saludable
+                        de los más pequeños.
+
+                    </p>
+
+
+                    <div class="about-highlight">
+
+                        <div class="highlight-icon">
+
+                            <i class="bi bi-people-fill"></i>
+
+                        </div>
+
+                        <div>
+
+                            <strong>
+                                Atención para toda la familia
+                            </strong>
+
+                            <span>
+                                Profesionales comprometidos con tu bienestar.
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- ELEMENTO VISUAL -->
+
+                <div class="about-visual"
+                     th:style="'--about-image: url(' + @{/img/nosotros.jpg} + ')'">
+
+                    
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         CONTACTO
+    ====================================================== -->
+
+    <section
+        class="contact-section"
+        id="contacto">
+
+        <div class="container">
+
+            <div class="contact-grid">
+
+
+                <!-- INFORMACIÓN -->
+
+                <div class="contact-column">
+
+                    <h3>
+
+                        <i class="bi bi-heart-pulse"></i>
+
+                        Centro de Salud Buenos Aires de Villa
+
+                    </h3>
+
+                    <p>
+
+                        Tu centro médico de confianza.
+                        Atención integral con profesionales
+                        comprometidos con la salud de nuestra comunidad.
+
+                    </p>
+
+                </div>
+
+
+                <!-- CONTACTO -->
+
+                <div class="contact-column">
+
+                    <h3>
+                        Contacto
+                    </h3>
+
+
+                    <div class="contact-item">
+
+                        <i class="bi bi-geo-alt"></i>
+
+                        <span>
+                            Ca. 15 de Octubre 15057, Chorrillos
+                        </span>
+
+                    </div>
+
+
+                    <div class="contact-item">
+
+                        <i class="bi bi-telephone"></i>
+
+                        <span>
+                            +51 945 788 574
+                        </span>
+
+                    </div>
+
+
+                    <div class="contact-item">
+
+                        <i class="bi bi-envelope"></i>
+
+                        <span>
+                            CS_BuenosAires@gmail.com
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <!-- HORARIO -->
+
+                <div class="contact-column">
+
+                    <h3>
+                        Horario de atención
+                    </h3>
+
+
+                    <div class="contact-item">
+
+                        <i class="bi bi-clock"></i>
+
+                        <span>
+                            Lunes a Viernes<br>
+                            8:00 - 20:00
+                        </span>
+
+                    </div>
+
+
+                    <div class="contact-item">
+
+                        <i class="bi bi-clock"></i>
+
+                        <span>
+                            Sábados<br>
+                            8:00 - 14:00
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer class="footer-bottom">
+
+        <div class="container">
+
+            <p>
+
+                © 2026 Centro de Salud Buenos Aires de Villa.
+                Todos los derechos reservados.
+
+            </p>
+
+        </div>
+
+    </footer>
+
 
 </body>
+
 </html>

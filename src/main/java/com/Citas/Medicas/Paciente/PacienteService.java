@@ -78,6 +78,12 @@ public class PacienteService {
     }
 
     @Transactional(readOnly = true)
+    public List<Paciente> filtrar(String texto, Boolean estado, Boolean conSis) {
+        String criterio = texto == null || texto.isBlank() ? null : texto.trim();
+        return pacientes.filtrarPacientes(criterio, estado, conSis);
+    }
+
+    @Transactional(readOnly = true)
     public Paciente obtener(Long id) {
         return pacientes.findById(id)
             .orElseThrow(() ->
@@ -119,8 +125,10 @@ public class PacienteService {
         paciente.setUsuario(usuario);
         paciente.setEstado(true);
 
+        validarIdentificadoresUnicos(historia, sis,
+                paciente.getIdPaciente());
         asignarDatos(paciente, historia, sis, nacimiento,
-                     genero, direccion);
+                genero, direccion, true, sis != null && !sis.isBlank());
 
         return pacientes.save(paciente);
     }
@@ -128,18 +136,23 @@ public class PacienteService {
     @Transactional
     public Paciente actualizar(Long id, String historia,
                                String sis, LocalDate nacimiento,
-                               String genero, String direccion) {
+                               String genero, String direccion,
+                               boolean historiaVerificada,
+                               boolean sisVerificado) {
         Paciente paciente = obtener(id);
 
+        validarIdentificadoresUnicos(historia, sis, paciente.getIdPaciente());
         asignarDatos(paciente, historia, sis, nacimiento,
-                     genero, direccion);
+                genero, direccion, historiaVerificada, sisVerificado);
 
         return pacientes.save(paciente);
     }
 
     private void asignarDatos(Paciente p, String historia,
                               String sis, LocalDate nacimiento,
-                              String genero, String direccion) {
+                              String genero, String direccion,
+                              boolean historiaVerificada,
+                              boolean sisVerificado) {
 
         if (historia == null || historia.isBlank()
                 || historia.trim().length() > 20) {
@@ -164,11 +177,43 @@ public class PacienteService {
             throw new IllegalArgumentException("Dirección demasiado larga");
         }
 
-        p.setNumeroHistoria(historia.trim());
-        p.setSis(sis);
+        String numeroHistoria = historia.trim().replaceAll("\\s+", " ");
+        String numeroSis = sis == null || sis.isBlank()
+                ? null : sis.trim().replaceAll("\\s+", " ");
+        p.setNumeroHistoria(numeroHistoria);
+        p.setNumeroHistoriaVerificado(historiaVerificada);
+        p.setSis(numeroSis);
+        p.setSisVerificado(numeroSis != null && sisVerificado);
         p.setFechaNacimiento(nacimiento);
         p.setGenero(genero);
         p.setDireccion(direccion);
+    }
+
+    private void validarIdentificadoresUnicos(String historia, String sis,
+                                              Long idPaciente) {
+        String numeroHistoria = historia == null ? null : historia.trim();
+        String numeroSis = sis == null || sis.isBlank() ? null : sis.trim();
+
+        if (numeroHistoria != null && !numeroHistoria.isBlank()) {
+            boolean duplicado = idPaciente == null
+                    ? pacientes.existsByNumeroHistoriaIgnoreCase(numeroHistoria)
+                    : pacientes.existsByNumeroHistoriaIgnoreCaseAndIdPacienteNot(
+                            numeroHistoria, idPaciente);
+            if (duplicado) {
+                throw new IdentificadorPacienteDuplicadoException(
+                        "numeroHistoria", "Ese número de historia ya pertenece a otro paciente.");
+            }
+        }
+
+        if (numeroSis != null) {
+            boolean duplicado = idPaciente == null
+                    ? pacientes.existsBySisIgnoreCase(numeroSis)
+                    : pacientes.existsBySisIgnoreCaseAndIdPacienteNot(numeroSis, idPaciente);
+            if (duplicado) {
+                throw new IdentificadorPacienteDuplicadoException(
+                        "sis", "Ese número SIS ya pertenece a otro paciente.");
+            }
+        }
     }
 
     @Transactional

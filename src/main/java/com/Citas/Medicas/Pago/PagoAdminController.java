@@ -2,8 +2,10 @@
 package com.Citas.Medicas.Pago;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,17 +32,29 @@ public class PagoAdminController {
         this.citasRepository = citasRepository;
     }
     @GetMapping
-    public String listar(Model model) {
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String estado,
+                         @RequestParam(required = false) String metodo,
+                         @RequestParam(required = false)
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate desde,
+                         @RequestParam(required = false)
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate hasta,
+                         Model model) {
 
         model.addAttribute(
                 "pagos",
-                pagoService.listar()
+                pagoService.filtrar(q, estado, metodo, desde, hasta)
         );
 
         model.addAttribute(
                 "totalRecaudado",
                 pagoService.totalRecaudado()
         );
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("estadoFiltro", estado);
+        model.addAttribute("metodoFiltro", metodo);
+        model.addAttribute("desdeFiltro", desde);
+        model.addAttribute("hastaFiltro", hasta);
 
         return "admin/pagos/lista";
     }
@@ -55,8 +69,10 @@ public class PagoAdminController {
                 .filter(c -> c.getPaciente() != null)
                 .filter(c -> {
                     String sis = c.getPaciente().getSis();
-
-                    return sis == null || sis.trim().isEmpty();
+                    boolean sinSis = sis == null || sis.trim().isEmpty();
+                    boolean sisPendiente = Boolean.FALSE.equals(
+                            c.getPaciente().getSisVerificado());
+                    return sinSis || sisPendiente;
                 })
                 .toList();
 
