@@ -1,337 +1,620 @@
-
 <!DOCTYPE html>
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>Gestión de Citas | Centro Médico</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
     <style>
-        body {
-            background: #f3f6fb;
-            font-family: Arial, sans-serif;
-            color: #24364b;
+        :root {
+            --sidebar-width: 260px;
+            --primary-dark: #0b1f36;
+            --primary-blue: #123b70;
+            --accent-blue: #1767b2;
+            --bg-body: #f8fafc;
         }
 
-        .navbar {
-            background: linear-gradient(90deg, #123b70, #1767b2);
+        body {
+            background-color: var(--bg-body);
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            overflow-x: hidden;
+        }
+
+        /* --- SIDEBAR --- */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: var(--sidebar-width);
+            background-color: var(--primary-dark);
+            color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            z-index: 1030;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .sidebar-brand {
+            padding: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #ffffff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-brand span {
+            font-size: 11px;
+            color: #94a3b8;
+            display: block;
+            font-weight: normal;
+        }
+
+        .sidebar-action-btn {
+            padding: 15px 20px;
+        }
+
+        .sidebar-action-btn .btn-nueva-cita {
+            background-color: #1767b2;
+            border: none;
+            color: white;
+            font-weight: bold;
+            border-radius: 8px;
+            padding: 10px;
+            transition: background 0.2s;
+        }
+
+        .sidebar-action-btn .btn-nueva-cita:hover {
+            background-color: #1f7ac9;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 0 10px;
+            margin: 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .sidebar-menu li a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: #cbd5e1;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 15px;
+            transition: all 0.2s;
+        }
+
+        .sidebar-menu li a:hover,
+        .sidebar-menu li.active a {
+            background-color: #123b70;
+            color: #ffffff;
+        }
+
+        .sidebar-menu li a i {
+            font-size: 18px;
+            margin-right: 12px;
+        }
+
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            background-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .user-profile-mini {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .user-avatar {
+            width: 35px;
+            height: 35px;
+            background-color: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 13px;
+            margin-right: 10px;
+        }
+
+        .user-info h6 {
+            font-size: 13px;
+            margin: 0;
+            font-weight: bold;
+            color: #fff;
+        }
+
+        .user-info small {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .btn-logout-sidebar {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            padding: 0;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-logout-sidebar:hover {
+            color: #fff;
+        }
+
+        /* --- CONTENIDO PRINCIPAL --- */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* --- TOPBAR --- */
+        .topbar {
+            background-color: #ffffff;
+            height: 70px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1020;
+        }
+
+        .topbar-search {
+            position: relative;
+            width: 350px;
+        }
+
+        .topbar-search input {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 8px 15px 8px 38px;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .topbar-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .topbar-sede {
+            background-color: #f1f5f9;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #475569;
+            font-weight: 600;
+        }
+
+        .topbar-date {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .topbar-icon-btn {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 13px;
+            color: #475569;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- ENCABEZADO DE SECCIÓN --- */
+        .page-header-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
         .titulo {
-            color: #163e70;
-            font-weight: 700;
+            color: #0f172a;
+            font-weight: bold;
+            font-size: 22px;
         }
 
-        .card {
-            border: none;
-            border-radius: 15px;
+        /* --- TARJETAS ESTADÍSTICAS --- */
+        .tarjeta {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .tarjeta:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
 
         .resumen {
-            background: linear-gradient(110deg, #123b70, #2477c4);
+            background: linear-gradient(135deg, #0b2545 0%, #134074 100%);
             color: white;
+            border: none;
         }
 
         .resumen-icono {
-            font-size: 35px;
+            font-size: 32px;
             opacity: 0.85;
         }
 
+        .tarjeta-icon-small {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+        }
+
+        /* --- FILTROS DE TABLA --- */
+        .filter-bar {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-bar .form-control, .filter-bar .form-select {
+            font-size: 13px;
+            border-color: #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        /* --- TABLA --- */
         .table thead th {
-            background: #163e70;
-            color: white;
-            white-space: nowrap;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border-bottom: 2px solid #e2e8f0;
             padding: 14px;
+            white-space: nowrap;
         }
 
         .table td {
             vertical-align: middle;
-            padding: 12px;
+            padding: 14px;
+            font-size: 13px;
         }
 
+        /* Estados */
         .estado {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 12px;
+            padding: 5px 12px;
+            font-size: 11px;
             font-weight: bold;
         }
 
-        .estado-confirmada {
-            background: #dcfce7;
-            color: #166534;
-        }
-
-        .estado-pendiente {
-            background: #fef3c7;
-            color: #92400e;
-        }
-
-        .estado-cancelada {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        .estado-atendida {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .estado-otro {
-            background: #e2e8f0;
-            color: #475569;
-        }
+        .estado-confirmada { background: #dcfce7; color: #166534; }
+        .estado-pendiente { background: #fef3c7; color: #92400e; }
+        .estado-cancelada { background: #fee2e2; color: #991b1b; }
+        .estado-atendida { background: #dbeafe; color: #1d4ed8; }
+        .estado-otro { background: #e2e8f0; color: #475569; }
 
         .btn-primary {
             background: #1767b2;
             border-color: #1767b2;
+            font-weight: 600;
+            font-size: 13px;
         }
 
         .btn-primary:hover {
             background: #123b70;
             border-color: #123b70;
         }
+
+        /* Footer General */
+        .footer-main {
+            margin-top: auto;
+            padding: 20px 30px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
+        }
     </style>
 </head>
 
 <body>
 
-    <!-- BARRA SUPERIOR -->
-    <nav class="navbar navbar-dark shadow-sm">
-        <div class="container-fluid px-4">
+    <!-- SIDEBAR / MENÚ LATERAL IZQUIERDO -->
+    <aside class="sidebar">
+        <a class="sidebar-brand" th:href="@{/admin/dashboard}">
+            <div>
+                CM Buenos Aires
+                <span>Gestión Clínica</span>
+            </div>
+        </a>
 
-            <a class="navbar-brand fw-bold"
-               th:href="@{/admin/dashboard}">
+        
 
-                <i class="bi bi-hospital me-2"></i>
-                Centro Médico Buenos Aires de Villa
-            </a>
+        <!-- Opciones de Navegación -->
+        <ul class="sidebar-menu">
+            <li>
+                <a th:href="@{/admin/dashboard}"><i class="bi bi-grid-1x2-fill"></i> Dashboard</a>
+            </li>
+            <li class="active">
+                <a th:href="@{/admin/citas}"><i class="bi bi-calendar-event"></i> Citas</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/medicos}"><i class="bi bi-person-badge"></i> Médicos</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/pacientes}"><i class="bi bi-people"></i> Pacientes</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/especialidades}"><i class="bi bi-clipboard2-pulse"></i> Especialidades</a>
+            </li>
+            <li>
+                <a th:href="@{/admin/pagos}"><i class="bi bi-wallet2"></i> Pagos</a>
+            </li>
+            
+        </ul>
 
-            <form method="post" th:action="@{/logout}">
-                <button class="btn btn-outline-light btn-sm"
-                        type="submit">
-                    <i class="bi bi-box-arrow-right me-1"></i>
-                    Cerrar sesión
+        <!-- Perfil y Cierre de Sesión en el Sidebar Inferior -->
+        <div class="sidebar-footer">
+            
+            <form th:action="@{/logout}" method="post" class="m-0">
+                <button type="submit" class="btn-logout-sidebar">
+                    <i class="bi bi-box-arrow-right me-1"></i> Cerrar sesión
                 </button>
             </form>
-
         </div>
-    </nav>
+    </aside>
 
-    <main class="container py-4">
 
-        <!-- ENCABEZADO -->
-        <div class="d-flex flex-wrap justify-content-between
-                    align-items-center gap-3 mb-4">
+    <!-- CONTENEDOR PRINCIPAL -->
+    <div class="main-content">
 
-            <div>
-                <h2 class="titulo mb-1">
-                    <i class="bi bi-calendar-check me-2"></i>
-                    Gestión de Citas Médicas
-                </h2>
+        <!-- BARRA SUPERIOR (TOPBAR) -->
+        
 
-                <p class="text-muted mb-0">
-                    Administra las reservas y citas de los pacientes.
-                </p>
+
+        <!-- CUERPO DE LA VISTA -->
+        <main class="container-fluid px-4 py-4">
+
+            <!-- ENCABEZADO -->
+            <div class="page-header-box">
+                
+
+                <div class="d-flex gap-2">
+                    
+
+                    <a th:href="@{/admin/citas/nuevo}" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+                        <i class="bi bi-plus-lg"></i> Nueva cita
+                    </a>
+                </div>
             </div>
 
-            <div class="d-flex gap-2">
-
-                <a th:href="@{/admin/dashboard}"
-                   class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i>
-                    Volver
-                </a>
-
-                <a th:href="@{/admin/citas/nuevo}"
-                   class="btn btn-primary">
-                    <i class="bi bi-calendar-plus me-1"></i>
-                    Nueva cita
-                </a>
-
+            <!-- MENSAJES -->
+            <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                <span th:text="${mensaje}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
-        </div>
 
-        <!-- MENSAJES -->
-        <div th:if="${mensaje}"
-             class="alert alert-success alert-dismissible fade show">
-            <i class="bi bi-check-circle-fill me-2"></i>
-            <span th:text="${mensaje}"></span>
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"></button>
-        </div>
+            <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                <span th:text="${error}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
 
-        <div th:if="${error}"
-             class="alert alert-danger alert-dismissible fade show">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
-            <span th:text="${error}"></span>
-            <button type="button"
-                    class="btn-close"
-                    data-bs-dismiss="alert"></button>
-        </div>
+            <!-- RESUMEN (TARJETAS ESTADÍSTICAS) -->
+            
 
-        <!-- RESUMEN -->
-        <div class="row g-3 mb-4">
+            <!-- BARRA DE FILTROS SUPERIOR DE LA TABLA -->
+            <form class="filter-bar" method="get" th:action="@{/admin/citas}">
+                <div class="flex-grow-1">
+                    <input type="search" name="q" class="form-control"
+                           th:value="${textoFiltro}"
+                           placeholder="🔍 Paciente, DNI, médico, especialidad o ID...">
+                </div>
+                <div style="width: 165px;">
+                    <input type="date" name="fecha" class="form-control"
+                           th:value="${fechaFiltro}" aria-label="Filtrar por fecha">
+                </div>
+                <div style="width: 240px;">
+                    <select name="idMedico" class="form-select">
+                        <option value="" th:selected="${medicoFiltro == null}">Todos los médicos</option>
+                        <option th:each="m : ${medicosFiltro}"
+                                th:value="${m.idMedico}"
+                                th:text="|Dr. ${m.usuario.nombre} ${m.usuario.apellido}|"
+                                th:selected="${m.idMedico == medicoFiltro}">Médico</option>
+                    </select>
+                </div>
+                <div style="width: 180px;">
+                    <select name="estado" class="form-select">
+                        <option value="" th:selected="${estadoFiltro == null}">Todos los estados</option>
+                        <option value="CONFIRMADA" th:selected="${estadoFiltro == 'CONFIRMADA'}">Confirmada</option>
+                        <option value="PENDIENTE_PAGO" th:selected="${estadoFiltro == 'PENDIENTE_PAGO'}">Pendiente de pago</option>
+                        <option value="ATENDIDA" th:selected="${estadoFiltro == 'ATENDIDA'}">Atendida</option>
+                        <option value="CANCELADA" th:selected="${estadoFiltro == 'CANCELADA'}">Cancelada</option>
+                    </select>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-sm px-3 py-2">Filtrar</button>
+                    <a th:href="@{/admin/citas}"
+                       class="btn btn-outline-secondary btn-sm px-3 py-2">Limpiar</a>
+                </div>
+            </form>
 
-            <div class="col-md-6">
-                <div class="card resumen shadow-sm">
-                    <div class="card-body p-4 d-flex
-                                justify-content-between align-items-center">
+            <!-- TABLA DE CITAS -->
+            <div class="card shadow-sm border-0">
+                <div class="card-body p-0">
 
-                        <div>
-                            <h6>Total de citas registradas</h6>
-
-                            <h2 class="fw-bold"
-                                th:text="${citas != null ? #lists.size(citas) : 0}">
-                                0
-                            </h2>
-
-                            <small>Reservas del sistema</small>
-                        </div>
-
-                        <i class="bi bi-calendar2-check resumen-icono"></i>
+                    <div class="p-3 border-bottom d-flex justify-content-between align-items-center bg-white" style="border-top-left-radius: 12px; border-top-right-radius: 12px;">
+                        <h6 class="fw-bold mb-0 d-flex align-items-center gap-2 text-dark">
+                            <i class="bi bi-list-ul text-primary"></i> Listado de citas 
+                            <span class="badge bg-light text-secondary border fw-normal" style="font-size: 11px;" th:text="${citas != null ? #lists.size(citas) + ' registros' : '0 registros'}">6 registros</span>
+                        </h6>
+                     
                     </div>
-                </div>
-            </div>
 
-            <div class="col-md-6">
-                <div class="card shadow-sm">
-                    <div class="card-body p-4 d-flex
-                                justify-content-between align-items-center">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Paciente</th>
+                                    <th>Médico asignado</th>
+                                    <th>Fecha programada</th>
+                                    <th>Horario (Inicio - Fin)</th>
+                                    <th>Estado</th>
+                                    <th class="text-center">Acciones</th>
+                                </tr>
+                            </thead>
 
-                        <div>
-                            <h6 class="text-muted">Citas programadas para hoy</h6>
+                            <tbody>
+                                <tr th:each="c : ${citas}">
 
-                            <h2 class="titulo"
-                                th:text="${citasHoy != null ? citasHoy : 0}">
-                                0
-                            </h2>
+                                    <td class="fw-semibold text-muted" th:text="${c.idCita}">1</td>
 
-                            <small class="text-muted">
-                                Atenciones del día
-                            </small>
-                        </div>
+                                    <td>
+                                        <div class="fw-bold text-dark" th:text="${c.paciente.usuario.nombre + ' ' + c.paciente.usuario.apellido}">Gustavo Miranda</div>
+                                        
+                                    </td>
 
-                        <i class="bi bi-calendar-date fs-1 text-primary"></i>
+                                    <td>
+                                        <div class="fw-bold text-dark" th:text="${'Dr. ' + c.medico.usuario.nombre + ' ' + c.medico.usuario.apellido}">Dr. Javier Bellido</div>
+                                        
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1 text-dark">
+                                            <i class="bi bi-calendar text-muted"></i>
+                                            <span th:text="${c.fecha}">2026-10-13</span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex align-items-center gap-1 text-dark">
+                                            <i class="bi bi-clock text-muted"></i>
+                                            <span th:text="${c.horaInicio + ' - ' + c.horaFin}">12:15 - 12:20</span>
+                                        </div>
+                                    </td>
+
+                                    <td>
+                                        <span class="estado"
+                                              th:classappend="${c.estado == 'CONFIRMADA'} ? 'estado-confirmada' :
+                                                              (${c.estado == 'PENDIENTE_PAGO'} ? 'estado-pendiente' :
+                                                              (${c.estado == 'CANCELADA'} ? 'estado-cancelada' :
+                                                              (${c.estado == 'ATENDIDA'} ? 'estado-atendida' : 'estado-otro')))"
+                                              th:text="${c.estado}">
+                                            CONFIRMADA
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <div class="d-flex justify-content-center align-items-center gap-2">
+                                            
+
+                                            <!-- Formulario Cancelar / Cobrar -->
+                                            <form method="post"
+                                                  th:if="${c.estado != 'CANCELADA' and c.estado != 'ATENDIDA'}"
+                                                  th:action="@{/admin/citas/cancelar/{id}(id=${c.idCita})}"
+                                                  onsubmit="return confirm('¿Estás seguro de cancelar esta cita?');"
+                                                  class="m-0">
+
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-1 px-2" style="font-size: 11px;">
+                                                    <i class="bi bi-x-circle me-1"></i> Cancelar
+                                                </button>
+                                            </form>
+
+                                            <span class="text-muted small" th:if="${c.estado == 'CANCELADA' or c.estado == 'ATENDIDA'}">
+                                                Sin acciones
+                                            </span>
+                                        </div>
+                                    </td>
+
+                                </tr>
+
+                                <tr th:if="${citas == null or #lists.isEmpty(citas)}">
+                                    <td colspan="7" class="text-center text-muted py-5">
+                                        <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary"></i>
+                                        No hay citas registradas en el sistema.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- TABLA DE CITAS -->
-        <div class="card shadow-sm">
-
-            <div class="card-body p-4">
-
-                <h5 class="fw-bold mb-3">
-                    <i class="bi bi-list-ul me-2"></i>
-                    Listado de citas
-                </h5>
-
-                <div class="table-responsive">
-
-                    <table class="table table-bordered table-hover align-middle">
-
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Paciente</th>
-                                <th>Médico</th>
-                                <th>Fecha</th>
-                                <th>Hora inicio</th>
-                                <th>Hora fin</th>
-                                <th>Estado</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            <tr th:each="c : ${citas}">
-
-                                <td th:text="${c.idCita}"></td>
-
-                                <td th:text="${c.paciente.usuario.nombre + ' ' + c.paciente.usuario.apellido}">
-                                </td>
-
-                                <td th:text="${c.medico.usuario.nombre + ' ' + c.medico.usuario.apellido}">
-                                </td>
-
-                                <td th:text="${c.fecha}"></td>
-
-                                <td th:text="${c.horaInicio}"></td>
-
-                                <td th:text="${c.horaFin}"></td>
-
-                                <td>
-                                    <span class="estado"
-                                          th:classappend="${c.estado == 'CONFIRMADA'} ? 'estado-confirmada' :
-                                                          (${c.estado == 'PENDIENTE_PAGO'} ? 'estado-pendiente' :
-                                                          (${c.estado == 'CANCELADA'} ? 'estado-cancelada' :
-                                                          (${c.estado == 'ATENDIDA'} ? 'estado-atendida' : 'estado-otro')))"
-                                          th:text="${c.estado}">
-                                    </span>
-                                </td>
-
-                                <td>
-                                    <form method="post"
-                                          th:if="${c.estado != 'CANCELADA' and c.estado != 'ATENDIDA'}"
-                                          th:action="@{/admin/citas/cancelar/{id}(id=${c.idCita})}"
-                                          onsubmit="return confirm('¿Estás seguro de cancelar esta cita?');">
-
-                                        <button type="submit"
-                                                class="btn btn-outline-danger btn-sm">
-                                            <i class="bi bi-x-circle me-1"></i>
-                                            Cancelar
-                                        </button>
-                                    </form>
-
-                                    <span class="text-muted"
-                                          th:if="${c.estado == 'CANCELADA' or c.estado == 'ATENDIDA'}">
-                                        Sin acciones
-                                    </span>
-                                </td>
-
-                            </tr>
-
-                            <tr th:if="${citas == null or #lists.isEmpty(citas)}">
-                                <td colspan="8"
-                                    class="text-center text-muted py-4">
-
-                                    <i class="bi bi-calendar-x fs-2 d-block mb-2"></i>
-                                    No hay citas registradas.
-
-                                </td>
-                            </tr>
-
-                        </tbody>
-                    </table>
 
                 </div>
             </div>
-        </div>
 
-    </main>
+        </main>
 
-    <footer class="text-center text-muted py-4">
-        <small>
-            © 2026 Centro Médico Buenos Aires de Villa |
-            Sistema de Gestión de Citas Médicas
-        </small>
-    </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js">
-    </script>
+        <!-- PIE DE PÁGINA -->
+        <footer class="footer-main">
+            <p class="mb-0">
+                © 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas
+            </p>
+        </footer>
+
+    </div>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
 </html>

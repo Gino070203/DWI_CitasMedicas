@@ -111,6 +111,11 @@ public class PacienteController {
             bindingResult.rejectValue("dni", "dni.duplicado", e.getMessage());
             prepararPerfil(idUsuario, formulario, model);
             return "paciente/perfil";
+        } catch (IdentificadorPacienteDuplicadoException e) {
+            bindingResult.rejectValue(e.getCampo(),
+                    e.getCampo() + ".duplicado", e.getMessage());
+            prepararPerfil(idUsuario, formulario, model);
+            return "paciente/perfil";
         } catch (IllegalArgumentException e) {
             bindingResult.reject("perfil.invalido", e.getMessage());
             prepararPerfil(idUsuario, formulario, model);

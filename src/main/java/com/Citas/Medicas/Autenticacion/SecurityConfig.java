@@ -33,14 +33,19 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-            	.requestMatchers("/css/**", 
-            			"/js/**", 
-            			"/images/**", 
-            			"/", "/login", 
-            			"/registro", 
-            			"/registrar", 
-            			"/verificar", 
-            			"/verificar-codigo").permitAll()
+                .requestMatchers(
+                        "/css/**",
+                        "/js/**",
+                        "/images/**",
+                        "/img/**",
+                        "/",
+                        "/home",
+                        "/login",
+                        "/registro",
+                        "/registrar",
+                        "/verificar",
+                        "/verificar-codigo")
+                    .permitAll()
                 .requestMatchers("/admin/**").hasRole("ADMIN")       // Solo para administradores
                 .requestMatchers("/medico/**").hasRole("MEDICO")     // Solo para médicos
                 .requestMatchers("/paciente/**").hasRole("PACIENTE") // Solo para pacientes

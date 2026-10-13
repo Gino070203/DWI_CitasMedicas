@@ -2,6 +2,7 @@ package com.Citas.Medicas.Paciente;
 
 import java.time.LocalDate;
 import java.util.Locale;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +35,8 @@ public class PerfilPacienteService {
         formulario.setDireccion(usuario.getDireccion() != null
                 && !usuario.getDireccion().isBlank()
                 ? usuario.getDireccion() : paciente.getDireccion());
+        formulario.setNumeroHistoria(paciente.getNumeroHistoria());
+        formulario.setSis(paciente.getSis());
         formulario.setFechaNacimiento(paciente.getFechaNacimiento());
         formulario.setGenero(paciente.getGenero());
 
@@ -41,7 +44,11 @@ public class PerfilPacienteService {
                 formulario,
                 usuario.getCorreo(),
                 paciente.getNumeroHistoria(),
-                paciente.getSis());
+                paciente.getSis(),
+                tieneValor(paciente.getNumeroHistoria())
+                        && !Boolean.FALSE.equals(paciente.getNumeroHistoriaVerificado()),
+                tieneValor(paciente.getSis())
+                        && !Boolean.FALSE.equals(paciente.getSisVerificado()));
     }
 
     @Transactional
@@ -61,6 +68,33 @@ public class PerfilPacienteService {
         }
         if (usuarios.existeDniDeOtro(dni, idUsuario)) {
             throw new DniPacienteDuplicadoException();
+        }
+
+        String historiaActual = normalizar(paciente.getNumeroHistoria());
+        String sisActual = normalizar(paciente.getSis());
+        String historiaSolicitada = normalizar(formulario.getNumeroHistoria());
+        String sisSolicitado = normalizar(formulario.getSis());
+
+        // Un campo vacío no borra un identificador ya registrado; para una
+        // corrección se debe ingresar el nuevo valor explícitamente.
+        String numeroHistoria = historiaSolicitada != null
+                ? historiaSolicitada : historiaActual;
+        String sis = sisSolicitado != null ? sisSolicitado : sisActual;
+        validarLongitudIdentificadores(numeroHistoria, sis);
+
+        boolean cambioHistoria = !Objects.equals(historiaActual, numeroHistoria);
+        boolean cambioSis = !Objects.equals(sisActual, sis);
+        if (cambioHistoria && numeroHistoria != null
+                && pacientes.existsByNumeroHistoriaIgnoreCaseAndIdPacienteNot(
+                        numeroHistoria, paciente.getIdPaciente())) {
+            throw new IdentificadorPacienteDuplicadoException(
+                    "numeroHistoria", "Ese número de historia ya pertenece a otro paciente.");
+        }
+        if (cambioSis && sis != null
+                && pacientes.existsBySisIgnoreCaseAndIdPacienteNot(
+                        sis, paciente.getIdPaciente())) {
+            throw new IdentificadorPacienteDuplicadoException(
+                    "sis", "Ese número SIS ya pertenece a otro paciente.");
         }
 
         LocalDate nacimiento = formulario.getFechaNacimiento();
@@ -97,6 +131,14 @@ public class PerfilPacienteService {
 
         paciente.setFechaNacimiento(nacimiento);
         paciente.setGenero(genero.toUpperCase(Locale.ROOT));
+        if (cambioHistoria) {
+            paciente.setNumeroHistoria(numeroHistoria);
+            paciente.setNumeroHistoriaVerificado(false);
+        }
+        if (cambioSis) {
+            paciente.setSis(sis);
+            paciente.setSisVerificado(false);
+        }
         // La dirección existe en ambas entidades; mantenerlas sincronizadas.
         paciente.setDireccion(direccion);
 
@@ -129,5 +171,19 @@ public class PerfilPacienteService {
             return null;
         }
         return valor.trim().replaceAll("\\s+", " ");
+    }
+
+    private static boolean tieneValor(String valor) {
+        return valor != null && !valor.isBlank();
+    }
+
+    private static void validarLongitudIdentificadores(String historia, String sis) {
+        if (historia != null && historia.length() > 20) {
+            throw new IllegalArgumentException(
+                    "El número de historia no puede superar 20 caracteres.");
+        }
+        if (sis != null && sis.length() > 20) {
+            throw new IllegalArgumentException("El SIS no puede superar 20 caracteres.");
+        }
     }
 }

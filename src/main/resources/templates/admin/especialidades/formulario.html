@@ -2,46 +2,239 @@
 <html lang="es" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Formulario de especialidad</title>
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Formulario de Especialidad | Centro Médico Buenos Aires de Villa</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-dark: #0b1f36;
+            --primary-blue: #123b70;
+            --accent-blue: #1767b2;
+            --bg-body: #f8fafc;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            font-family: Arial, sans-serif;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            margin: 0;
+        }
+
+        /* --- TOPBAR INSTITUCIONAL --- */
+        .topbar-form {
+            background-color: #ffffff;
+            height: 70px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+        }
+
+        .brand-box {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-icon {
+            width: 38px;
+            height: 38px;
+            background-color: var(--primary-dark);
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        /* --- CONTENEDOR FORMULARIO --- */
+        .form-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .form-header-banner {
+            border-bottom: 1px solid #e2e8f0;
+            padding: 25px 35px;
+            background-color: #ffffff;
+        }
+
+        .form-body-content {
+            padding: 35px;
+        }
+
+        .form-label {
+            font-size: 13px;
+            font-weight: bold;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .form-control {
+            font-size: 13px;
+            border-color: #cbd5e1;
+            padding: 10px 14px;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 3px rgba(23, 103, 178, 0.1);
+            background-color: #fff;
+        }
+
+        .btn-guardar {
+            background-color: #0b1f36;
+            border: none;
+            color: white;
+            font-weight: bold;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: background 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-guardar:hover {
+            background-color: var(--primary-blue);
+            color: white;
+        }
+
+        .btn-cancelar {
+            background-color: #ffffff;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 13px;
+            text-decoration: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-cancelar:hover {
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+
+        /* Footer General */
+        .footer-main {
+            margin-top: auto;
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            font-size: 12px;
+            border-top: 1px solid #e2e8f0;
+            background-color: #ffffff;
+        }
+    </style>
 </head>
-<body class="bg-light">
-<div class="container py-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h3>Registrar / Editar especialidad</h3>
+<body>
 
-            <div th:if="${error}" class="alert alert-danger"
-                 th:text="${error}"></div>
+    <!-- BARRA SUPERIOR INSTITUCIONAL -->
+    
 
-            <form method="post"
-                  th:action="@{/admin/especialidades/guardar}">
 
-                <input type="hidden" name="idEspecialidad"
-                       th:value="${especialidad.idEspecialidad}">
+    <!-- CONTENEDOR PRINCIPAL DEL FORMULARIO -->
+    <main class="container py-5" style="max-width: 850px;">
 
-                <label class="form-label mt-3">Nombre</label>
-                <input name="nombre" class="form-control"
-                       th:value="${especialidad.nombre}"
-                       maxlength="100" required>
+        <div class="form-card">
+            
+            <!-- ENCABEZADO DEL FORMULARIO -->
+            <div class="form-header-banner">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <span class="text-uppercase text-muted fw-semibold" style="font-size: 11px; letter-spacing: 0.5px;">
+                            <i class="bi bi-clipboard2-pulse me-1"></i> Módulo de Catálogo Clínico
+                        </span>
+                        <h2 class="fw-bold text-dark mb-1" style="font-size: 22px;">Registrar / Editar Especialidad</h2>
+                        
+                    </div>
+                    
+                </div>
+            </div>
 
-                <label class="form-label mt-3">Descripción</label>
-                <textarea name="descripcion" class="form-control"
-                          maxlength="200" rows="4"
-                          th:text="${especialidad.descripcion}"></textarea>
+            <!-- CUERPO / CAMPOS DEL FORMULARIO -->
+            <div class="form-body-content">
 
-                <button class="btn btn-success mt-4">
-                    Guardar
-                </button>
+                <!-- MENSAJE DE ERROR -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    <span th:text="${error}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
 
-                <a class="btn btn-secondary mt-4"
-                   th:href="@{/admin/especialidades}">
-                    Cancelar
-                </a>
-            </form>
+                <form method="post"
+                      th:action="@{/admin/especialidades/guardar}">
+
+                    <!-- CAMPO OCULTO ID -->
+                    <input type="hidden" name="idEspecialidad"
+                           th:value="${especialidad.idEspecialidad}">
+
+                    <!-- NOMBRE -->
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la especialidad <span class="text-danger">*</span></label>
+                        <input name="nombre" class="form-control"
+                               th:value="${especialidad.nombre}"
+                               maxlength="100" placeholder="Ej. Pediatría Integral" required>
+                    </div>
+
+                    <!-- DESCRIPCIÓN -->
+                    <div class="mb-4">
+                        <label class="form-label">Descripción o detalle clínico</label>
+                        <textarea name="descripcion" class="form-control"
+                                  maxlength="200" rows="4"
+                                  th:text="${especialidad.descripcion}" placeholder="Breve descripción orientada a la atención de pacientes..."></textarea>
+                        
+                    </div>
+
+                    <!-- BOTONES DE ACCIÓN -->
+                    <div class="d-flex justify-content-end align-items-center gap-2 pt-3 border-top">
+                        <a class="btn-cancelar"
+                           th:href="@{/admin/especialidades}">
+                            <i class="bi bi-x me-1"></i> Cancelar
+                        </a>
+                        <button type="submit" class="btn-guardar">
+                            <i class="bi bi-check-circle me-1"></i> Guardar Especialidad
+                        </button>
+                    </div>
+
+                </form>
+
+            </div>
+
         </div>
-    </div>
-</div>
+
+    </main>
+
+
+    <!-- PIE DE PÁGINA -->
+    <footer class="footer-main">
+        <p class="mb-0">
+            © 2026 Centro Médico Buenos Aires de Villa | Sistema de Gestión de Citas Médicas
+        </p>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -14,12 +14,42 @@ public interface PacienteRepository
 
     Optional<Paciente> findByUsuarioIdUsuario(Long idUsuario);
 
+    boolean existsByNumeroHistoriaIgnoreCase(String numeroHistoria);
+
+    boolean existsByNumeroHistoriaIgnoreCaseAndIdPacienteNot(
+            String numeroHistoria, Long idPaciente);
+
+    boolean existsBySisIgnoreCase(String sis);
+
+    boolean existsBySisIgnoreCaseAndIdPacienteNot(String sis, Long idPaciente);
+
     @Query("""
         SELECT p FROM Paciente p
         JOIN FETCH p.usuario u
         ORDER BY u.apellido, u.nombre
     """)
     List<Paciente> listarPacientes();
+
+    @Query("""
+        SELECT p FROM Paciente p
+        JOIN FETCH p.usuario u
+        WHERE (:texto IS NULL
+               OR LOWER(COALESCE(u.nombre, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.apellido, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.dni, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(u.correo, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(p.numeroHistoria, '')) LIKE CONCAT('%', LOWER(:texto), '%')
+               OR LOWER(COALESCE(p.sis, '')) LIKE CONCAT('%', LOWER(:texto), '%'))
+          AND (:estado IS NULL OR p.estado = :estado)
+          AND (:conSis IS NULL
+               OR (:conSis = true AND p.sis IS NOT NULL AND TRIM(p.sis) <> '')
+               OR (:conSis = false AND (p.sis IS NULL OR TRIM(p.sis) = '')))
+        ORDER BY u.apellido, u.nombre
+    """)
+    List<Paciente> filtrarPacientes(
+            @Param("texto") String texto,
+            @Param("estado") Boolean estado,
+            @Param("conSis") Boolean conSis);
 
 
 

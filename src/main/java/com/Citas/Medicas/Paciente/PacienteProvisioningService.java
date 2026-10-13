@@ -67,6 +67,8 @@ public class PacienteProvisioningService {
                     paciente.setUsuario(usuario);
                     paciente.setEstado(true);
                     paciente.setDireccion(usuario.getDireccion());
+                    paciente.setNumeroHistoriaVerificado(false);
+                    paciente.setSisVerificado(false);
                     // Historia clínica y SIS son datos institucionales:
                     // no se generan valores ficticios durante el alta.
                     return pacientes.save(paciente);

@@ -41,8 +41,18 @@ public class CitasAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        model.addAttribute("citas", service.listar());
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String estado,
+                         @RequestParam(required = false)
+                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fecha,
+                         @RequestParam(required = false) Long idMedico,
+                         Model model) {
+        model.addAttribute("citas", service.filtrar(q, estado, fecha, idMedico));
+        model.addAttribute("medicosFiltro", medicos.listarMedicos());
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("estadoFiltro", estado);
+        model.addAttribute("fechaFiltro", fecha);
+        model.addAttribute("medicoFiltro", idMedico);
         return "admin/citas/lista";
     }
 

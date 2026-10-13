@@ -26,6 +26,16 @@ public class PerfilPacienteForm {
     @Pattern(regexp = "\\d{8}", message = "El DNI debe contener exactamente 8 dígitos.")
     private String dni;
 
+    @Size(max = 20, message = "El número de historia no puede superar 20 caracteres.")
+    @Pattern(regexp = "^(?:\\s*|[\\p{L}\\p{N}][\\p{L}\\p{N} ._/-]*)$",
+            message = "El número de historia contiene caracteres no permitidos.")
+    private String numeroHistoria;
+
+    @Size(max = 20, message = "El SIS no puede superar 20 caracteres.")
+    @Pattern(regexp = "^(?:\\s*|[\\p{L}\\p{N}][\\p{L}\\p{N} ._/-]*)$",
+            message = "El SIS contiene caracteres no permitidos.")
+    private String sis;
+
     @Size(max = 20, message = "El teléfono no puede superar los 20 caracteres.")
     @Pattern(regexp = "^(?:$|(?=(?:\\D*\\d){7,})\\+?[0-9][0-9\\s().-]{5,17}[0-9])$",
             message = "Ingresa un teléfono válido, con al menos 7 dígitos.")
@@ -65,6 +75,22 @@ public class PerfilPacienteForm {
 
     public void setDni(String dni) {
         this.dni = dni;
+    }
+
+    public String getNumeroHistoria() {
+        return numeroHistoria;
+    }
+
+    public void setNumeroHistoria(String numeroHistoria) {
+        this.numeroHistoria = numeroHistoria;
+    }
+
+    public String getSis() {
+        return sis;
+    }
+
+    public void setSis(String sis) {
+        this.sis = sis;
     }
 
     public String getTelefono() {

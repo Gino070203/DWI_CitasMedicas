@@ -30,13 +30,19 @@ public class HorariosAdminController {
     }
 
     @GetMapping
-    public String listar(Model model) {
-        List<Horarios> bloques = service.listar();
+    public String listar(@RequestParam(required = false) String q,
+                         @RequestParam(required = false) String diaSemana,
+                         @RequestParam(required = false) Boolean estado,
+                         Model model) {
+        List<Horarios> bloques = service.filtrar(q, diaSemana, estado);
         model.addAttribute("horarios", bloques);
         model.addAttribute("turnosPorBloque", bloques.stream()
                 .collect(Collectors.toMap(Horarios::getIdHorario,
                         service::contarTurnosPosibles)));
         model.addAttribute("duracionConsultaMinutos", service.getDuracionConsultaMinutos());
+        model.addAttribute("textoFiltro", q);
+        model.addAttribute("diaFiltro", diaSemana);
+        model.addAttribute("estadoFiltro", estado);
         return "admin/horarios/lista";
     }
 

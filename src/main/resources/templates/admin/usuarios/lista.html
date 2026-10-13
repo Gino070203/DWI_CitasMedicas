@@ -148,6 +148,34 @@
             </button>
         </div>
 
+        <form class="row g-2 align-items-center mb-3" method="get"
+              th:action="@{/admin/usuarios}">
+            <div class="col-12 col-md">
+                <input type="search" name="q" class="form-control"
+                       th:value="${textoFiltro}"
+                       placeholder="Buscar nombre, apellido, DNI o correo">
+            </div>
+            <div class="col-12 col-md-3">
+                <select name="rol" class="form-select">
+                    <option value="" th:selected="${rolFiltro == null}">Todos los roles</option>
+                    <option value="ADMIN" th:selected="${rolFiltro == 'ADMIN'}">Administrador</option>
+                    <option value="MEDICO" th:selected="${rolFiltro == 'MEDICO'}">Médico</option>
+                    <option value="PACIENTE" th:selected="${rolFiltro == 'PACIENTE'}">Paciente</option>
+                </select>
+            </div>
+            <div class="col-12 col-md-2">
+                <select name="estado" class="form-select">
+                    <option value="" th:selected="${estadoFiltro == null}">Todos los estados</option>
+                    <option value="true" th:selected="${estadoFiltro == true}">Activo</option>
+                    <option value="false" th:selected="${estadoFiltro == false}">Inactivo</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <a th:href="@{/admin/usuarios}" class="btn btn-outline-secondary">Limpiar</a>
+            </div>
+        </form>
+
         <!-- TABLA -->
         <div class="card shadow-sm">
             <div class="card-body p-4">
